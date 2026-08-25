@@ -1,0 +1,271 @@
+/* ==========================================================================
+   THE REGAL INN HOTEL — Design System
+   Luxury navy + gold theme (Tsogo Sun-inspired)
+   ========================================================================== */
+
+:root{
+  --navy-900:#071522;
+  --navy-800:#0A1F2E;
+  --navy-700:#0F2C40;
+  --navy-600:#163C55;
+  --gold-500:#D4A017;
+  --gold-400:#E8B84B;
+  --gold-300:#F2C14E;
+  --cream:#F5F1E8;
+  --cream-dim:#C9C3B4;
+  --success:#3FAE6B;
+  --danger:#D3564A;
+  --shadow-gold: 0 8px 30px rgba(212,160,23,.25);
+  --radius-lg:16px;
+  --radius-md:10px;
+  --radius-sm:6px;
+  --font-head:'Playfair Display', Georgia, serif;
+  --font-body:'Inter', -apple-system, Segoe UI, sans-serif;
+}
+
+*{box-sizing:border-box;}
+
+body{
+  background:var(--navy-800);
+  color:var(--cream);
+  font-family:var(--font-body);
+  margin:0;
+  line-height:1.6;
+  -webkit-font-smoothing:antialiased;
+}
+
+h1,h2,h3,h4,.font-display{
+  font-family:var(--font-head);
+  font-weight:600;
+  letter-spacing:.3px;
+}
+
+a{color:var(--gold-400); text-decoration:none; transition:color .2s ease;}
+a:hover{color:var(--gold-300);}
+
+/* ---------- Navbar ---------- */
+.navbar-regal{
+  background:linear-gradient(180deg,#B8860B,#9C7108);
+  padding:.9rem 2rem;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  position:sticky;
+  top:0;
+  z-index:1000;
+  transition:padding .25s ease, box-shadow .25s ease;
+}
+.navbar-regal.scrolled{
+  padding:.5rem 2rem;
+  box-shadow:0 6px 24px rgba(0,0,0,.35);
+}
+.navbar-regal .brand{
+  font-family:var(--font-head);
+  font-size:1.5rem;
+  color:var(--navy-900);
+  font-weight:700;
+}
+.navbar-regal .nav-links{display:flex; gap:1.75rem; align-items:center; list-style:none; margin:0; padding:0;}
+.navbar-regal .nav-links a{
+  color:var(--navy-900);
+  font-weight:600;
+  font-size:.95rem;
+  position:relative;
+}
+.navbar-regal .nav-links a::after{
+  content:'';
+  position:absolute; left:0; bottom:-6px;
+  width:0; height:2px; background:var(--navy-900);
+  transition:width .25s ease;
+}
+.navbar-regal .nav-links a:hover::after{width:100%;}
+.navbar-regal .nav-cta{
+  background:var(--navy-900);
+  color:var(--gold-300)!important;
+  padding:.5rem 1.2rem;
+  border-radius:30px;
+  font-weight:600;
+}
+
+/* ---------- Buttons ---------- */
+.btn-regal{
+  display:inline-flex; align-items:center; justify-content:center;
+  gap:.5rem;
+  background:linear-gradient(135deg,var(--gold-500),var(--gold-300));
+  color:var(--navy-900);
+  font-weight:700;
+  padding:.85rem 1.9rem;
+  border:none;
+  border-radius:30px;
+  cursor:pointer;
+  font-size:.95rem;
+  transition:transform .2s ease, box-shadow .2s ease;
+}
+.btn-regal:hover{transform:translateY(-3px); box-shadow:var(--shadow-gold); color:var(--navy-900);}
+.btn-outline{
+  background:transparent;
+  border:1.5px solid var(--gold-400);
+  color:var(--gold-300);
+  padding:.8rem 1.8rem;
+  border-radius:30px;
+  font-weight:600;
+  cursor:pointer;
+  transition:all .2s ease;
+}
+.btn-outline:hover{background:var(--gold-400); color:var(--navy-900);}
+
+/* ---------- Hero ---------- */
+.hero{
+  position:relative;
+  min-height:88vh;
+  display:flex; align-items:center; justify-content:center;
+  text-align:center;
+  background:
+    linear-gradient(180deg, rgba(7,21,34,.55), rgba(7,21,34,.92)),
+    url('https://images.unsplash.com/photo-1566073771259-6a8506099945?q=80&w=1974&auto=format&fit=crop') center/cover no-repeat;
+  padding:2rem;
+}
+.hero-inner{max-width:820px; animation:fadeUp 1s ease both;}
+.hero-eyebrow{
+  letter-spacing:4px; text-transform:uppercase; color:var(--gold-300);
+  font-size:.8rem; font-weight:700; margin-bottom:1rem;
+}
+.hero h1{font-size:clamp(2.2rem,5vw,4rem); margin:0 0 1rem; color:var(--cream);}
+.hero p{font-size:1.15rem; color:var(--cream-dim); max-width:600px; margin:0 auto 2rem;}
+.hero-actions{display:flex; gap:1rem; justify-content:center; flex-wrap:wrap;}
+
+/* ---------- Booking search widget ---------- */
+.search-widget{
+  margin:-4.5rem auto 4rem;
+  max-width:1100px;
+  background:var(--navy-700);
+  border:1px solid rgba(212,160,23,.25);
+  border-radius:var(--radius-lg);
+  padding:1.75rem;
+  display:grid;
+  grid-template-columns:repeat(4,1fr) auto;
+  gap:1.25rem;
+  align-items:end;
+  box-shadow:0 20px 60px rgba(0,0,0,.4);
+  position:relative;
+  z-index:5;
+}
+.search-widget .field{display:flex; flex-direction:column; gap:.4rem;}
+.search-widget label{font-size:.75rem; text-transform:uppercase; letter-spacing:1px; color:var(--gold-300);}
+.search-widget input, .search-widget select{
+  background:var(--navy-800);
+  border:1px solid var(--navy-600);
+  border-radius:var(--radius-sm);
+  padding:.7rem .9rem;
+  color:var(--cream);
+  font-family:var(--font-body);
+  font-size:.95rem;
+}
+.search-widget input:focus, .search-widget select:focus{outline:2px solid var(--gold-400);}
+@media (max-width:900px){.search-widget{grid-template-columns:1fr 1fr;}}
+
+/* ---------- Sections ---------- */
+.section{padding:5rem 2rem; max-width:1200px; margin:0 auto;}
+.section-title{text-align:center; margin-bottom:.5rem; font-size:2.2rem;}
+.section-sub{text-align:center; color:var(--cream-dim); max-width:600px; margin:0 auto 3rem;}
+
+/* Scroll reveal */
+.reveal{opacity:0; transform:translateY(30px); transition:opacity .7s ease, transform .7s ease;}
+.reveal.is-visible{opacity:1; transform:none;}
+
+@keyframes fadeUp{from{opacity:0; transform:translateY(24px);} to{opacity:1; transform:none;}}
+
+/* ---------- Room cards ---------- */
+.room-grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(300px,1fr)); gap:2rem;}
+.room-card{
+  background:var(--navy-700);
+  border-radius:var(--radius-lg);
+  overflow:hidden;
+  border:1px solid rgba(255,255,255,.06);
+  transition:transform .3s ease, box-shadow .3s ease;
+}
+.room-card:hover{transform:translateY(-8px); box-shadow:0 20px 40px rgba(0,0,0,.35);}
+.room-card .img-wrap{height:220px; overflow:hidden;}
+.room-card img{width:100%; height:100%; object-fit:cover; transition:transform .5s ease;}
+.room-card:hover img{transform:scale(1.08);}
+.room-card .body{padding:1.5rem;}
+.room-card h3{margin:0 0 .4rem; font-size:1.3rem;}
+.room-card .price{color:var(--gold-300); font-weight:700; font-size:1.2rem; margin:.6rem 0;}
+.room-card .amenities{display:flex; flex-wrap:wrap; gap:.5rem; margin-bottom:1rem;}
+.badge-amenity{
+  font-size:.72rem; background:rgba(212,160,23,.12); color:var(--gold-300);
+  padding:.3rem .7rem; border-radius:20px; border:1px solid rgba(212,160,23,.3);
+}
+
+/* ---------- Testimonials ---------- */
+.testimonial-track{display:flex; gap:2rem; overflow-x:auto; scroll-snap-type:x mandatory; padding-bottom:1rem;}
+.testimonial-card{
+  min-width:320px; scroll-snap-align:start;
+  background:var(--navy-700); border-radius:var(--radius-lg); padding:2rem;
+  border:1px solid rgba(255,255,255,.06);
+}
+.testimonial-card .stars{color:var(--gold-400); margin-bottom:1rem;}
+
+/* ---------- Forms (Contact / Login / Register) ---------- */
+.form-regal{
+  background:var(--navy-700);
+  border-radius:var(--radius-lg);
+  padding:2.5rem;
+  max-width:520px;
+  margin:0 auto;
+  border:1px solid rgba(255,255,255,.06);
+}
+.form-regal .field{margin-bottom:1.3rem; display:flex; flex-direction:column; gap:.4rem;}
+.form-regal label{font-size:.85rem; color:var(--gold-300); font-weight:600;}
+.form-regal input, .form-regal textarea{
+  background:var(--navy-800); border:1px solid var(--navy-600); border-radius:var(--radius-sm);
+  padding:.85rem 1rem; color:var(--cream); font-family:var(--font-body);
+}
+.form-regal input:focus, .form-regal textarea:focus{outline:2px solid var(--gold-400);}
+.form-msg{padding:.8rem 1rem; border-radius:var(--radius-sm); font-size:.9rem; margin-bottom:1rem; display:none;}
+.form-msg.success{background:rgba(63,174,107,.15); color:var(--success); border:1px solid var(--success); display:block;}
+.form-msg.error{background:rgba(211,86,74,.15); color:var(--danger); border:1px solid var(--danger); display:block;}
+
+/* ---------- Footer ---------- */
+.footer-regal{
+  background:var(--navy-900); padding:3rem 2rem 1.5rem; text-align:center;
+  border-top:1px solid rgba(212,160,23,.15); color:var(--cream-dim); font-size:.9rem;
+}
+.footer-regal .foot-links{display:flex; gap:2rem; justify-content:center; margin-bottom:1.5rem; flex-wrap:wrap;}
+
+/* ---------- Chatbot widget ---------- */
+#regal-chat-bubble{
+  position:fixed; bottom:24px; right:24px; z-index:2000;
+  width:60px; height:60px; border-radius:50%;
+  background:linear-gradient(135deg,var(--gold-500),var(--gold-300));
+  display:flex; align-items:center; justify-content:center;
+  cursor:pointer; box-shadow:0 8px 24px rgba(0,0,0,.35);
+  transition:transform .2s ease;
+}
+#regal-chat-bubble:hover{transform:scale(1.08);}
+#regal-chat-window{
+  position:fixed; bottom:96px; right:24px; z-index:2000;
+  width:340px; max-width:90vw; height:440px; max-height:70vh;
+  background:var(--navy-700); border-radius:var(--radius-lg);
+  border:1px solid rgba(212,160,23,.3);
+  display:none; flex-direction:column; overflow:hidden;
+  box-shadow:0 20px 60px rgba(0,0,0,.5);
+}
+#regal-chat-window.open{display:flex; animation:fadeUp .3s ease both;}
+.chat-header{background:linear-gradient(135deg,var(--gold-500),var(--gold-300)); color:var(--navy-900); padding:1rem; font-weight:700;}
+.chat-body{flex:1; padding:1rem; overflow-y:auto; display:flex; flex-direction:column; gap:.6rem;}
+.chat-msg{max-width:80%; padding:.6rem .9rem; border-radius:14px; font-size:.85rem;}
+.chat-msg.bot{background:var(--navy-800); align-self:flex-start; border-bottom-left-radius:4px;}
+.chat-msg.user{background:var(--gold-400); color:var(--navy-900); align-self:flex-end; border-bottom-right-radius:4px;}
+.chat-quick{display:flex; flex-wrap:wrap; gap:.5rem; padding:0 1rem .8rem;}
+.chat-quick button{
+  background:transparent; border:1px solid var(--gold-400); color:var(--gold-300);
+  border-radius:16px; padding:.35rem .8rem; font-size:.78rem; cursor:pointer;
+}
+.chat-quick button:hover{background:var(--gold-400); color:var(--navy-900);}
+.chat-input-row{display:flex; border-top:1px solid rgba(255,255,255,.08);}
+.chat-input-row input{
+  flex:1; background:var(--navy-800); border:none; color:var(--cream);
+  padding:.9rem; font-family:var(--font-body);
+}
+.chat-input-row button{background:var(--gold-400); border:none; padding:0 1.1rem; cursor:pointer; color:var(--navy-900); font-weight:700;}
