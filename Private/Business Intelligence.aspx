@@ -1,4 +1,4 @@
 ﻿<%@ Page Title="" Language="C#" MasterPageFile="~/Site.Master" AutoEventWireup="true" CodeBehind="Business Intelligence.aspx.cs" Inherits="CodeCrafters_Major_Project_Website.Private.Business_Intelligence" %>
 <asp:Content ID="Content1" ContentPlaceHolderID="MainContent" runat="server">
-    <h2> This Is a Restricted Area</h2>
+    <section class="section"><h1 class="section-title">Operations dashboard</h1><p class="section-sub">Private overview for Regal Inn managers and administrators.</p><div class="stat-grid"><div class="stat-card"><div class="stat-label">Today's arrivals</div><div class="stat-value">—</div></div><div class="stat-card"><div class="stat-label">Active bookings</div><div class="stat-value">—</div></div><div class="stat-card"><div class="stat-label">Rooms available</div><div class="stat-value">—</div></div></div></section>
 </asp:Content>

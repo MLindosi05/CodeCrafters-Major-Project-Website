@@ -44,7 +44,7 @@
                     <asp:CheckBox runat="server" ID="RememberMe" TabIndex="3" />
                     Remember me
                 </label>
-                <a href="~/Account/ForgotPassword.aspx" runat="server" style="font-size:.85rem;">Forgot password?</a>
+                <a href="~/Account/Forgot.aspx" runat="server" style="font-size:.85rem;">Forgot password?</a>
             </div>
 
             <asp:Button runat="server" OnClick="LogIn_Click" Text="Log In" ID="LoginButton"
@@ -61,10 +61,10 @@
 
 <asp:Content ID="ScriptC" ContentPlaceHolderID="ScriptContent" runat="server">
     <style>
-        .regal-input{width:100%; background:var(--navy-800); border:1px solid var(--navy-600); border-radius:var(--radius-sm);
-            padding:.85rem 2.6rem .85rem 1rem; color:var(--cream); font-family:var(--font-body); font-size:.95rem;
+        .regal-input{width:100%; background:#fff; border:1px solid var(--border); border-radius:var(--radius-sm);
+            padding:.85rem 2.6rem .85rem 1rem; color:var(--text); font-family:var(--font-body); font-size:.95rem;
             transition:border-color .2s ease, box-shadow .2s ease;}
-        .regal-input:focus{outline:none; border-color:var(--gold-400); box-shadow:0 0 0 3px rgba(212,160,23,.15);}
+        .regal-input:focus{outline:none; border-color:var(--blue-700); box-shadow:0 0 0 3px var(--blue-50);}
         .pw-toggle{position:absolute; right:.9rem; top:50%; transform:translateY(-50%); background:none; border:none;
             cursor:pointer; opacity:.6; font-size:1rem;}
         .pw-toggle:hover{opacity:1;}

@@ -75,14 +75,16 @@ namespace CodeCrafters_Major_Project_Website
             string type = (roomType ?? string.Empty).ToLower();
 
             if (type.Contains("suite"))
-                return "https://images.unsplash.com/photo-1590490360182-c33d57733427?q=80&w=1200&auto=format&fit=crop";
+                return ResolveImage("~/Images/Pictures/suite twin beds1.png");
             if (type.Contains("twin"))
-                return "https://images.unsplash.com/photo-1595576508898-0ad5c879a061?q=80&w=1200&auto=format&fit=crop";
+                return ResolveImage("~/Images/Pictures/standard 2 double beds.jpg");
             if (type.Contains("king"))
-                return "https://images.unsplash.com/photo-1611892440504-42a792e24d32?q=80&w=1200&auto=format&fit=crop";
+                return ResolveImage("~/Images/Pictures/Standard king bed.jpg");
 
-            return "https://images.unsplash.com/photo-1618773928121-c32242e63f39?q=80&w=1200&auto=format&fit=crop";
+            return ResolveImage("~/Images/Pictures/Regal pic 1.jpg");
         }
+
+        private static string ResolveImage(string url) { return VirtualPathUtility.ToAbsolute(url); }
 
         protected void btnSearch_Click(object sender, EventArgs e)
         {

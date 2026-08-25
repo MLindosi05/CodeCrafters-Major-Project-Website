@@ -1,0 +1,1 @@
+namespace CodeCrafters_Major_Project_Website.Bookings { public partial class MyBookings { protected global::System.Web.UI.WebControls.Literal Message; protected global::System.Web.UI.WebControls.Repeater BookingsRepeater; } }

@@ -23,6 +23,10 @@ namespace CodeCrafters_Major_Project_Website.Account
         /// </remarks>
         protected global::System.Web.UI.WebControls.Literal ErrorMessage;
 
+        protected global::System.Web.UI.WebControls.TextBox FirstName;
+
+        protected global::System.Web.UI.WebControls.TextBox LastName;
+
         /// <summary>
         /// Email control.
         /// </summary>

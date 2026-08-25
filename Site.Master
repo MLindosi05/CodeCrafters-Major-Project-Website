@@ -1,5 +1,4 @@
-﻿<%@ Master Language="C#" AutoEventWireup="true" CodeBehind="Site.master.cs" Inherits="CodeCrafters_Major_Project_Website.SiteMaster" %>
-
+﻿<%@ Master Language="C#" AutoEventWireup="true" CodeBehind="Site.Master.cs" Inherits="CodeCrafters_Major_Project_Website.SiteMaster" %>
 <!DOCTYPE html>
 <html lang="en">
 <head runat="server">
@@ -7,11 +6,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title><asp:ContentPlaceHolder ID="TitleContent" runat="server">The Regal Inn Hotel</asp:ContentPlaceHolder></title>
 
-    <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
 
-    <!-- Theme -->
     <link href="~/css/site-theme.css" runat="server" rel="stylesheet" />
 
     <asp:ContentPlaceHolder ID="HeadContent" runat="server" />
@@ -30,28 +27,28 @@
                 <asp:LoginView runat="server">
                     <AnonymousTemplate>
                         <li><a href="~/Account/Register.aspx" runat="server">Register</a></li>
-                        <li><a class="nav-cta" href="~/Account/Login.aspx" runat="server">Log in</a></li>
+                        <li><a class="nav-cta" href="~/Account/Login.aspx" runat="server">Log In</a></li>
                     </AnonymousTemplate>
                     <LoggedInTemplate>
                         <li><a href="~/Bookings/MyBookings.aspx" runat="server">My Bookings</a></li>
+                        <li><a href="~/Account/Manage.aspx" runat="server">My Profile</a></li>
                         <asp:LoginView runat="server">
                             <RoleGroups>
-                                <asp:RoleGroup Roles="Admin,Staff">
+                                <asp:RoleGroup Roles="Admin,Manager,Staff">
                                     <ContentTemplate>
-                                        <li><a href="~/BI/Dashboard.aspx" runat="server">Business Intelligence</a></li>
-                                        <li><a href="~/Staff/StaffManagement.aspx" runat="server">Staff Management</a></li>
-                                        <li><a href="~/Rooms/RoomManagement.aspx" runat="server">Room Management</a></li>
+                                        <li><a href="~/Private/Business%20Intelligence.aspx" runat="server">Dashboard</a></li>
+                                        <li><a href="~/Private/Staff%20Management.aspx" runat="server">Staff</a></li>
+                                        <li><a href="~/Private/Room%20Management.aspx" runat="server">Manage Rooms</a></li>
                                     </ContentTemplate>
                                 </asp:RoleGroup>
                             </RoleGroups>
                         </asp:LoginView>
-                        <li>Hello, <asp:LoginName runat="server" /> !</li>
+                        <li style="opacity:.85;">Hi, <asp:LoginName runat="server" /></li>
                         <li><asp:LoginStatus ID="LoginStatus1" runat="server" LogoutAction="Redirect" LogoutPageUrl="~/Default.aspx" LogoutText="Log off" OnLoggingOut="LoginStatus1_LoggingOut" /></li>
                     </LoggedInTemplate>
                 </asp:LoginView>
             </ul>
         </nav>
-
 
         <!-- ================= PAGE CONTENT ================= -->
         <asp:ContentPlaceHolder ID="MainContent" runat="server" />
@@ -68,7 +65,6 @@
         </footer>
     </form>
 
-    <!-- ================= SCRIPTS ================= -->
     <script src="<%= ResolveUrl("~/js/site-interactions.js") %>"></script>
     <script src="<%= ResolveUrl("~/js/chatbot-widget.js") %>"></script>
     <asp:ContentPlaceHolder ID="ScriptContent" runat="server" />

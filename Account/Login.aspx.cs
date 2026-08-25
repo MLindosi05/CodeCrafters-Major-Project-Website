@@ -80,7 +80,10 @@ namespace CodeCrafters_Major_Project_Website.Account
             }
             else
             {
-                Response.Redirect("~/Default.aspx");
+                var user = UserManager.FindByEmail(Email.Text.Trim());
+                if (user != null && (UserManager.IsInRole(user.Id, RoleBootstrapper.Admin) || UserManager.IsInRole(user.Id, RoleBootstrapper.Manager)))
+                    Response.Redirect("~/Private/Business%20Intelligence.aspx");
+                Response.Redirect("~/Bookings/MyBookings.aspx");
             }
         }
 

@@ -8,6 +8,7 @@ using System.Web.UI.WebControls;
 
 using System.Configuration;
 using System.Data.SqlClient;
+using CodeCrafters_Major_Project_Website.Models;
 
 namespace CodeCrafters_Major_Project_Website
 {
@@ -20,9 +21,13 @@ namespace CodeCrafters_Major_Project_Website
                 // Pre-fill from querystring if arriving from the homepage search widget
                 if (Request.QueryString["checkin"] != null) txtCheckIn.Text = Request.QueryString["checkin"];
                 if (Request.QueryString["checkout"] != null) txtCheckOut.Text = Request.QueryString["checkout"];
-                if (Request.QueryString["type"] != null) ddlRoomType.SelectedValue = Request.QueryString["type"];
+                BindBranches();
+                if (Request.QueryString["branch"] != null && ddlBranch.Items.FindByValue(Request.QueryString["branch"]) != null)
+                    ddlBranch.SelectedValue = Request.QueryString["branch"];
+                if (Request.QueryString["type"] != null && ddlRoomType.Items.FindByValue(Request.QueryString["type"]) != null)
+                    ddlRoomType.SelectedValue = Request.QueryString["type"];
 
-                BindRooms(ddlRoomType.SelectedValue, 0);
+                BindRooms(ddlBranch.SelectedValue, ddlRoomType.SelectedValue, 0);
             }
         }
 
@@ -30,23 +35,26 @@ namespace CodeCrafters_Major_Project_Website
         // like "Standard Room 1 King Bed" / "Suite Room Twin Beds", so the
         // dropdown filter (Standard/Deluxe/Suite) does a partial LIKE match
         // rather than an exact equals.
-        private void BindRooms(string roomTypeFilter, decimal maxPrice)
+        private void BindRooms(string branchFilter, string roomTypeFilter, decimal maxPrice)
         {
             var rooms = new List<RoomResult>();
             string connStr = ConfigurationManager.ConnectionStrings["DefaultConnection"].ConnectionString;
 
-            const string sql = @"SELECT Hotel_Room_ID, Branch_ID, hotel_room_number, hotel_room_type,
-                                         Hotel_Room_Price, Max_Adults, Max_Children
-                                  FROM Hotel_Room
-                                  WHERE hotel_room_status = 'Available'
-                                    AND (@RoomType = '' OR hotel_room_type LIKE '%' + @RoomType + '%')
+            const string sql = @"SELECT hr.Hotel_Room_ID, hr.Branch_ID, b.Branch_Name, hr.hotel_room_number, hr.hotel_room_type,
+                                         hr.Hotel_Room_Price, hr.Max_Adults, hr.Max_Children
+                                  FROM Hotel_Room hr
+                                  INNER JOIN Branch b ON b.Branch_ID = hr.Branch_ID
+                                  WHERE hr.hotel_room_status = 'Available'
+                                    AND (@BranchId = '' OR hr.Branch_ID = @BranchId)
+                                    AND (@RoomType = '' OR hr.hotel_room_type LIKE '%' + @RoomType + '%')
                                     AND (@MaxPrice = 0 OR Hotel_Room_Price <= @MaxPrice)
-                                  ORDER BY Hotel_Room_Price ASC";
+                                  ORDER BY hr.Hotel_Room_Price ASC";
 
             using (var conn = new SqlConnection(connStr))
             using (var cmd = new SqlCommand(sql, conn))
             {
                 cmd.Parameters.AddWithValue("@RoomType", roomTypeFilter ?? string.Empty);
+                cmd.Parameters.AddWithValue("@BranchId", branchFilter ?? string.Empty);
                 cmd.Parameters.AddWithValue("@MaxPrice", maxPrice);
                 conn.Open();
                 using (var reader = cmd.ExecuteReader())
@@ -63,6 +71,7 @@ namespace CodeCrafters_Major_Project_Website
                             RoomName = roomType,
                             RoomNumber = reader["hotel_room_number"].ToString(),
                             BranchId = reader["Branch_ID"].ToString(),
+                            BranchName = reader["Branch_Name"].ToString(),
                             Blurb = BlurbForRoomType(roomType),
                             MaxGuests = (maxAdults + maxChildren) > 0 ? (maxAdults + maxChildren).ToString() : "2",
                             PricePerNight = Convert.ToDecimal(reader["Hotel_Room_Price"]),
@@ -98,7 +107,25 @@ namespace CodeCrafters_Major_Project_Website
         {
             decimal maxPrice = 0;
             decimal.TryParse(ddlMaxPrice.SelectedValue, out maxPrice);
-            BindRooms(ddlRoomType.SelectedValue, maxPrice);
+            BindRooms(ddlBranch.SelectedValue, ddlRoomType.SelectedValue, maxPrice);
+        }
+
+        private void BindBranches()
+        {
+            ddlBranch.Items.Clear();
+            ddlBranch.Items.Add(new ListItem("All branches", ""));
+            using (var conn = new SqlConnection(ConfigurationManager.ConnectionStrings["DefaultConnection"].ConnectionString))
+            using (var cmd = new SqlCommand("SELECT Branch_ID, Branch_Name FROM Branch WHERE Branch_Status = 'Active' ORDER BY Branch_Name", conn))
+            {
+                conn.Open();
+                using (var reader = cmd.ExecuteReader())
+                {
+                    ddlBranch.DataSource = reader;
+                    ddlBranch.DataTextField = "Branch_Name";
+                    ddlBranch.DataValueField = "Branch_ID";
+                    ddlBranch.DataBind();
+                }
+            }
         }
 
         protected void rptRooms_ItemCommand(object source, System.Web.UI.WebControls.RepeaterCommandEventArgs e)
@@ -126,12 +153,26 @@ namespace CodeCrafters_Major_Project_Website
                 return;
             }
 
-            // TODO: insert a booking record, e.g.:
-            // INSERT INTO Hotel_Booking (Hotel_Room_ID, UserId, CheckIn, CheckOut, Status)
-            // and consider updating Hotel_Room.hotel_room_status to 'Occupied'
-            // (or a 'Reserved' status if you add one) for the matching Hotel_Room_ID.
-
-            Response.Redirect("~/Bookings/Confirmation.aspx?roomId=" + Server.UrlEncode(hdnSelectedRoomId.Value));
+            DateTime checkIn, checkOut;
+            int roomId;
+            if (!int.TryParse(hdnSelectedRoomId.Value, out roomId) ||
+                !DateTime.TryParse(txtModalCheckIn.Text, out checkIn) ||
+                !DateTime.TryParse(txtModalCheckOut.Text, out checkOut))
+            {
+                pnlBookingModal.Style["display"] = "block";
+                lblSelectedRoom.Text = "Please enter valid booking dates.";
+                return;
+            }
+            try
+            {
+                int bookingId = new BookingService().CreateBooking(User.Identity.Name, roomId, checkIn, checkOut, 2);
+                Response.Redirect("~/Bookings/Confirmation.aspx?bookingId=" + bookingId);
+            }
+            catch (InvalidOperationException ex)
+            {
+                pnlBookingModal.Style["display"] = "block";
+                lblSelectedRoom.Text = Server.HtmlEncode(ex.Message);
+            }
         }
 
         private class RoomResult
@@ -140,6 +181,7 @@ namespace CodeCrafters_Major_Project_Website
             public string RoomName { get; set; }
             public string RoomNumber { get; set; }
             public string BranchId { get; set; }
+            public string BranchName { get; set; }
             public string Blurb { get; set; }
             public string MaxGuests { get; set; }
             public decimal PricePerNight { get; set; }

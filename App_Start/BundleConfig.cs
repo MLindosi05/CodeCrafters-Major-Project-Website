@@ -35,6 +35,11 @@ namespace CodeCrafters_Major_Project_Website
             // ready for production, use the build tool at https://modernizr.com to pick only the tests you need
             bundles.Add(new ScriptBundle("~/bundles/modernizr").Include(
                             "~/Scripts/modernizr-*"));
+
+            //added bundle config 
+            bundles.Add(new StyleBundle("~/css").Include(
+                                "~/Content/bootstrap.css",
+                                "~/Content/site-theme.css")); // <-- is your file listed here?
         }
 
         public static void RegisterJQueryScriptManager()

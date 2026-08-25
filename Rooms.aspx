@@ -1,11 +1,11 @@
-﻿<%@ Page Language="C#" AutoEventWireup="true" CodeBehind="Rooms.aspx.cs" Inherits="CodeCrafters_Major_Project_Website.Rooms" %>
+﻿   <%@ Page Title="" Language="C#" MasterPageFile="~/Site.Master" AutoEventWireup="true" CodeBehind="Rooms.aspx.cs" Inherits="CodeCrafters_Major_Project_Website.Rooms" %>
 <asp:Content ID="TitleC" ContentPlaceHolderID="TitleContent" runat="server">
     Rooms &amp; Rates | The Regal Inn Hotel
 </asp:Content>
 
 <asp:Content ID="BodyC" ContentPlaceHolderID="MainContent" runat="server">
 
-    <section class="section reveal" style="padding-top:3.5rem;">
+    <section class="section" style="padding-top:3.5rem;">
         <h1 class="section-title">Rooms &amp; Rates</h1>
         <p class="section-sub">Browse freely — you only need to sign in when you're ready to confirm.</p>
 
@@ -18,6 +18,10 @@
             <div class="field">
                 <label>Check-out</label>
                 <asp:TextBox ID="txtCheckOut" runat="server" TextMode="Date" />
+            </div>
+            <div class="field">
+                <label>Branch</label>
+                <asp:DropDownList ID="ddlBranch" runat="server" />
             </div>
             <div class="field">
                 <label>Room Type</label>
@@ -51,7 +55,7 @@
                     <div class="body">
                         <h3><%# Eval("RoomName") %></h3>
                         <p style="color:var(--cream-dim); font-size:.9rem;"><%# Eval("Blurb") %></p>
-                        <p style="color:var(--cream-dim); font-size:.78rem; margin-top:-.5rem;">Room <%# Eval("RoomNumber") %> · Branch <%# Eval("BranchId") %></p>
+                        <p style="color:var(--text-muted); font-size:.78rem; margin-top:-.5rem;">Room <%# Eval("RoomNumber") %> · <%# Eval("BranchName") %></p>
                         <div class="amenities">
                             <span class="badge-amenity">Sleeps <%# Eval("MaxGuests") %></span>
                             <span class="badge-amenity">Free Wi-Fi</span>

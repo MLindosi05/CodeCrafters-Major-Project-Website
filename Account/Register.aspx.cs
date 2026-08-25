@@ -2,6 +2,8 @@
 using System.Linq;
 using System.Web;
 using System.Web.UI;
+using System.Configuration;
+using System.Data.SqlClient;
 using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.Owin;
 using Owin;
@@ -36,18 +38,26 @@ namespace CodeCrafters_Major_Project_Website.Account
 
             // ApplicationUser is the model class already generated in your
             // Models/IdentityModels.cs when Identity was first scaffolded.
-            var user = new ApplicationUser { UserName = Email.Text, Email = Email.Text };
+            string email = Email.Text.Trim();
+            var user = new ApplicationUser { UserName = email, Email = email };
 
             IdentityResult result = UserManager.Create(user, Password.Text);
 
             if (result.Succeeded)
             {
-                SendConfirmationEmail(user);
-
-                // Don't sign the user in yet — email confirmation should
-                // happen first for a secure flow. Send them to a friendly
-                // "check your inbox" page instead.
-                Response.Redirect("~/Account/RegisterConfirmation.aspx?email=" + Server.UrlEncode(Email.Text));
+                try
+                {
+                    CreateClientProfile(email);
+                    RoleBootstrapper.EnsureGuestRole(UserManager, user.Id);
+                    // EmailService is intentionally a no-op until SMTP is configured.
+                    // The account remains usable; do not send users to a dead confirmation page.
+                    Response.Redirect("~/RegisterConfirmation.aspx?email=" + Server.UrlEncode(email));
+                }
+                catch (Exception)
+                {
+                    UserManager.Delete(user);
+                    ErrorMessage.Text = "<div class='form-msg error'>We could not create your guest profile. Please try again.</div>";
+                }
             }
             else
             {
@@ -59,23 +69,20 @@ namespace CodeCrafters_Major_Project_Website.Account
             }
         }
 
-        private void SendConfirmationEmail(ApplicationUser user)
+        private void CreateClientProfile(string email)
         {
-            string code = UserManager.GenerateEmailConfirmationToken(user.Id);
-
-            string confirmUrl = string.Format(
-                "{0}://{1}/Account/ConfirmEmail.aspx?userId={2}&code={3}",
-                Request.Url.Scheme,
-                Request.Url.Authority,
-                Server.UrlEncode(user.Id),
-                Server.UrlEncode(code));
-
-            string body = "Welcome to The Regal Inn Hotel! Please confirm your account by " +
-                "<a href=\"" + confirmUrl + "\">clicking here</a>.";
-
-            // This calls EmailService.cs (see earlier file), which is wired
-            // up as UserManager.EmailService in IdentityConfig.cs.
-            UserManager.SendEmail(user.Id, "Confirm your Regal Inn Hotel account", body);
+            const string sql = @"IF NOT EXISTS (SELECT 1 FROM Client WHERE Email_Address = @Email)
+INSERT INTO Client (First_Name, Last_Name, Password, Email_Address, Client_Status, Date_Registered)
+VALUES (@FirstName, @LastName, '[Identity managed]', @Email, 'Active', CAST(GETDATE() AS date));";
+            using (var connection = new SqlConnection(ConfigurationManager.ConnectionStrings["DefaultConnection"].ConnectionString))
+            using (var command = new SqlCommand(sql, connection))
+            {
+                command.Parameters.AddWithValue("@FirstName", FirstName.Text.Trim());
+                command.Parameters.AddWithValue("@LastName", LastName.Text.Trim());
+                command.Parameters.AddWithValue("@Email", email);
+                connection.Open();
+                command.ExecuteNonQuery();
+            }
         }
     }
 }

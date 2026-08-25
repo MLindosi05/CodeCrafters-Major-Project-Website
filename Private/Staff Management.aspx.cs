@@ -4,6 +4,7 @@ using System.Linq;
 using System.Web;
 using System.Web.UI;
 using System.Web.UI.WebControls;
+using CodeCrafters_Major_Project_Website.Models;
 
 namespace CodeCrafters_Major_Project_Website.Private
 {
@@ -11,7 +12,7 @@ namespace CodeCrafters_Major_Project_Website.Private
     {
         protected void Page_Load(object sender, EventArgs e)
         {
-
+            if (!User.IsInRole(RoleBootstrapper.Manager) && !User.IsInRole(RoleBootstrapper.Admin)) Response.Redirect("~/Default.aspx");
         }
     }
 }

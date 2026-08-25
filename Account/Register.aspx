@@ -19,8 +19,19 @@
             <asp:Literal runat="server" ID="ErrorMessage" EnableViewState="false" />
 
             <div class="field">
+                <label for="FirstName">First name</label>
+                <asp:TextBox runat="server" ID="FirstName" CssClass="regal-input" placeholder="Your first name" TabIndex="1" />
+                <asp:RequiredFieldValidator runat="server" ControlToValidate="FirstName" CssClass="field-error" ErrorMessage="First name is required." Display="Dynamic" />
+            </div>
+            <div class="field">
+                <label for="LastName">Last name</label>
+                <asp:TextBox runat="server" ID="LastName" CssClass="regal-input" placeholder="Your last name" TabIndex="2" />
+                <asp:RequiredFieldValidator runat="server" ControlToValidate="LastName" CssClass="field-error" ErrorMessage="Last name is required." Display="Dynamic" />
+            </div>
+
+            <div class="field">
                 <label for="Email">Email</label>
-                <asp:TextBox runat="server" ID="Email" CssClass="regal-input" placeholder="you@example.com" TabIndex="1" />
+                <asp:TextBox runat="server" ID="Email" TextMode="Email" CssClass="regal-input" placeholder="you@example.com" TabIndex="3" />
                 <asp:RequiredFieldValidator runat="server" ControlToValidate="Email"
                     CssClass="field-error" ErrorMessage="Email is required." Display="Dynamic" />
                 <asp:RegularExpressionValidator runat="server" ControlToValidate="Email"
@@ -32,7 +43,7 @@
                 <label for="Password">Password</label>
                 <div style="position:relative;">
                     <asp:TextBox runat="server" ID="Password" TextMode="Password" CssClass="regal-input"
-                        placeholder="At least 6 characters" TabIndex="2" onkeyup="regalCheckStrength(this.value)" />
+                        placeholder="At least 6 characters" TabIndex="4" onkeyup="regalCheckStrength(this.value)" />
                     <button type="button" class="pw-toggle" data-target="<%= Password.ClientID %>" aria-label="Show password">👁</button>
                 </div>
                 <div class="strength-track"><div id="strengthBar" class="strength-fill"></div></div>
@@ -44,7 +55,7 @@
             <div class="field">
                 <label for="ConfirmPassword">Confirm Password</label>
                 <asp:TextBox runat="server" ID="ConfirmPassword" TextMode="Password" CssClass="regal-input"
-                    placeholder="Re-enter your password" TabIndex="3" />
+                    placeholder="Re-enter your password" TabIndex="5" />
                 <asp:CompareValidator runat="server" ControlToValidate="ConfirmPassword" ControlToCompare="Password"
                     CssClass="field-error" ErrorMessage="Passwords do not match." Display="Dynamic" />
             </div>
@@ -54,7 +65,7 @@
             </p>
 
             <asp:Button runat="server" OnClick="CreateUser_Click" Text="Create Account" ID="RegisterButton"
-                CssClass="btn-regal" TabIndex="4" style="width:100%; font-size:1rem;" />
+                CssClass="btn-regal" TabIndex="6" style="width:100%; font-size:1rem;" />
 
             <p style="text-align:center; margin-top:1.5rem; font-size:.9rem; color:var(--cream-dim);">
                 Already have an account?
@@ -67,15 +78,15 @@
 
 <asp:Content ID="ScriptC" ContentPlaceHolderID="ScriptContent" runat="server">
     <style>
-        .regal-input{width:100%; background:var(--navy-800); border:1px solid var(--navy-600); border-radius:var(--radius-sm);
-            padding:.85rem 2.6rem .85rem 1rem; color:var(--cream); font-family:var(--font-body); font-size:.95rem;
+        .regal-input{width:100%; background:#fff; border:1px solid var(--border); border-radius:var(--radius-sm);
+            padding:.85rem 2.6rem .85rem 1rem; color:var(--text); font-family:var(--font-body); font-size:.95rem;
             transition:border-color .2s ease, box-shadow .2s ease;}
-        .regal-input:focus{outline:none; border-color:var(--gold-400); box-shadow:0 0 0 3px rgba(212,160,23,.15);}
+        .regal-input:focus{outline:none; border-color:var(--blue-700); box-shadow:0 0 0 3px var(--blue-50);}
         .pw-toggle{position:absolute; right:.9rem; top:50%; transform:translateY(-50%); background:none; border:none;
             cursor:pointer; opacity:.6; font-size:1rem;}
         .pw-toggle:hover{opacity:1;}
         .field-error{display:block; color:var(--danger); font-size:.78rem; margin-top:.3rem;}
-        .strength-track{height:5px; background:var(--navy-600); border-radius:4px; margin-top:.5rem; overflow:hidden;}
+        .strength-track{height:5px; background:var(--border); border-radius:4px; margin-top:.5rem; overflow:hidden;}
         .strength-fill{height:100%; width:0%; background:var(--danger); transition:width .3s ease, background .3s ease;}
     </style>
     <script>
