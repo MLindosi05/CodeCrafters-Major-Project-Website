@@ -40,7 +40,7 @@
         </div>
         <div class="field">
             <label for="ddlRoomType">Room Type</label>
-          <asp:DropDownList ID="ddlRoomType" runat="server" />>
+          <asp:DropDownList ID="ddlRoomType" runat="server" />
         </div>
         <asp:Button ID="btnSearch" runat="server" Text="Search Rooms" CssClass="btn-regal" OnClick="btnSearch_Click" />
     </div>

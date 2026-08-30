@@ -22,6 +22,7 @@ namespace CodeCrafters_Major_Project_Website
                 if (Request.QueryString["checkin"] != null) txtCheckIn.Text = Request.QueryString["checkin"];
                 if (Request.QueryString["checkout"] != null) txtCheckOut.Text = Request.QueryString["checkout"];
                 BindBranches();
+                BindRoomTypes();
                 if (Request.QueryString["branch"] != null && ddlBranch.Items.FindByValue(Request.QueryString["branch"]) != null)
                     ddlBranch.SelectedValue = Request.QueryString["branch"];
                 if (Request.QueryString["type"] != null && ddlRoomType.Items.FindByValue(Request.QueryString["type"]) != null)
@@ -124,6 +125,27 @@ namespace CodeCrafters_Major_Project_Website
                     ddlBranch.DataTextField = "Branch_Name";
                     ddlBranch.DataValueField = "Branch_ID";
                     ddlBranch.DataBind();
+                }
+            }
+        }
+
+        // Populates Room Type with every distinct type currently in Hotel_Room.
+        private void BindRoomTypes()
+        {
+            ddlRoomType.Items.Clear();
+            ddlRoomType.Items.Add(new ListItem("Any", ""));
+
+            using (var conn = new SqlConnection(ConfigurationManager.ConnectionStrings["DefaultConnection"].ConnectionString))
+            using (var cmd = new SqlCommand("SELECT DISTINCT hotel_room_type FROM Hotel_Room ORDER BY hotel_room_type", conn))
+            {
+                conn.Open();
+                using (var reader = cmd.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        string type = reader["hotel_room_type"].ToString();
+                        ddlRoomType.Items.Add(new ListItem(type, type));
+                    }
                 }
             }
         }
