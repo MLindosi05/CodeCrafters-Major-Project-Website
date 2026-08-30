@@ -40,7 +40,7 @@ namespace CodeCrafters_Major_Project_Website.Account
 
             // SignInStatus.Success / LockedOut / RequiresVerification / Failure
             var result = SignInManager.PasswordSignIn(
-                Email.Text,
+                Email.Text.Trim(),
                 Password.Text,
                 RememberMe.Checked,
                 shouldLockout: false);

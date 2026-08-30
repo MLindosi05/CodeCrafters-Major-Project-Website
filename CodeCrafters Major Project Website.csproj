@@ -188,6 +188,8 @@
     <Content Include="Default.aspx" />
     <Content Include="favicon.ico" />
     <Content Include="Global.asax" />
+    <Content Include="Images\DELUXE ROOM 1 KING BED.jpeg" />
+    <Content Include="Images\EXECUTIVE ROOM I KING BED.jpeg" />
     <Content Include="Images\Pictures\Branches\balito.jpg" />
     <Content Include="Images\Pictures\Ballito.jpg" />
     <Content Include="Images\Pictures\Branches\regall inn home page.jpg" />
@@ -210,6 +212,10 @@
     <Content Include="Images\Pictures\suite3 beds2.jpg" />
     <Content Include="Images\Pictures\Branches\Umhlanga.jpg" />
     <Content Include="Images\regall inn home page.jpg" />
+    <Content Include="Images\STANDARD ROOM 1 KING BED.jpeg" />
+    <Content Include="Images\STANDARD ROOM 2 DOUBLE BEDS.jpeg" />
+    <Content Include="Images\SUITE ROOM 1 KING BED.jpeg" />
+    <Content Include="Images\SUITE ROOM TWIN BEDS.jpeg" />
     <Content Include="js\chatbot-widget.js" />
     <Content Include="js\site-interactions.js" />
     <Content Include="Private\Business Intelligence.aspx" />

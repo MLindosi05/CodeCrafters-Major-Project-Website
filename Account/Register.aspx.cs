@@ -8,6 +8,7 @@ using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.Owin;
 using Owin;
 using CodeCrafters_Major_Project_Website.Models;
+using System.Data.Entity;
 
 namespace CodeCrafters_Major_Project_Website.Account
 {
@@ -36,53 +37,68 @@ namespace CodeCrafters_Major_Project_Website.Account
         {
             if (!Page.IsValid) return;
 
-            // ApplicationUser is the model class already generated in your
-            // Models/IdentityModels.cs when Identity was first scaffolded.
             string email = Email.Text.Trim();
             var user = new ApplicationUser { UserName = email, Email = email };
 
-            IdentityResult result = UserManager.Create(user, Password.Text);
+            IdentityResult result;
+            try
+            {
+                result = UserManager.Create(user, Password.Text);
+            }
+            catch (Exception ex)
+            {
+                ErrorMessage.Text = "<div class='form-msg error'>Account creation failed unexpectedly: " + ex.Message + "</div>";
+                return;
+            }
 
-            if (result.Succeeded)
+            if (!result.Succeeded)
             {
-                try
-                {
-                    CreateClientProfile(email);
-                    RoleBootstrapper.EnsureGuestRole(UserManager, user.Id);
-                    // EmailService is intentionally a no-op until SMTP is configured.
-                    // The account remains usable; do not send users to a dead confirmation page.
-                    Response.Redirect("~/RegisterConfirmation.aspx?email=" + Server.UrlEncode(email));
-                }
-                catch (Exception)
-                {
-                    UserManager.Delete(user);
-                    ErrorMessage.Text = "<div class='form-msg error'>We could not create your guest profile. Please try again.</div>";
-                }
+                ErrorMessage.Text = "<div class='form-msg error'>" + string.Join("<br/>", result.Errors) + "</div>";
+                return;
             }
-            else
+
+            try
             {
-                // Identity's built-in rules (min length, needs digit, etc.)
-                // surface here automatically — e.g. "Passwords must have at
-                // least one non letter or digit character."
-                ErrorMessage.Text = "<div class='form-msg error'>" +
-                    string.Join("<br/>", result.Errors) + "</div>";
+                CreateClientProfile(email);
+                RoleBootstrapper.EnsureGuestRole(UserManager, user.Id);
             }
+            catch (Exception ex)
+            {
+                try { UserManager.Delete(user); } catch { /* ignore */ }
+                ErrorMessage.Text = "<div class='form-msg error'>We could not create your guest profile. Please try again. (" + ex.Message + ")</div>";
+                return;
+            }
+
+            Response.Redirect("~/RegisterConfirmation.aspx?email=" + Server.UrlEncode(email));
         }
-
         private void CreateClientProfile(string email)
         {
             const string sql = @"IF NOT EXISTS (SELECT 1 FROM Client WHERE Email_Address = @Email)
-INSERT INTO Client (First_Name, Last_Name, Password, Email_Address, Client_Status, Date_Registered)
-VALUES (@FirstName, @LastName, '[Identity managed]', @Email, 'Active', CAST(GETDATE() AS date));";
+INSERT INTO Client (First_Name, Last_Name, Password, Email_Address, Phone_Number, Client_Status, Date_Registered)
+VALUES (@FirstName, @LastName, '[Identity managed]', @Email, @Phone, 'Active', CAST(GETDATE() AS date));";
+
             using (var connection = new SqlConnection(ConfigurationManager.ConnectionStrings["DefaultConnection"].ConnectionString))
             using (var command = new SqlCommand(sql, connection))
             {
                 command.Parameters.AddWithValue("@FirstName", FirstName.Text.Trim());
                 command.Parameters.AddWithValue("@LastName", LastName.Text.Trim());
                 command.Parameters.AddWithValue("@Email", email);
+                command.Parameters.AddWithValue("@Phone", Phone.Text.Trim());
                 connection.Open();
-                command.ExecuteNonQuery();
+                int rows = command.ExecuteNonQuery();
+                Log("CreateClientProfile for " + email + " — rows affected: " + rows);
             }
+        }
+        
+
+        private void Log(string message)
+        {
+            try
+            {
+                System.IO.File.AppendAllText(Server.MapPath("~/App_Data/register_debug.txt"),
+                    DateTime.Now + " | " + message + Environment.NewLine);
+            }
+            catch { /* never let logging break registration */ }
         }
     }
 }

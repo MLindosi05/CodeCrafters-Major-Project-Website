@@ -25,12 +25,10 @@
             </div>
             <div class="field">
                 <label>Room Type</label>
-                <asp:DropDownList ID="ddlRoomType" runat="server">
-                    <asp:ListItem Text="Any" Value="" />
-                    <asp:ListItem Text="Standard" Value="Standard" />
-                    <asp:ListItem Text="Deluxe" Value="Deluxe" />
-                    <asp:ListItem Text="Suite" Value="Suite" />
-                </asp:DropDownList>
+                <div class="field">
+    <label>Room Type</label>
+    <asp:DropDownList ID="ddlRoomType" runat="server" />
+</div>
             </div>
             <div class="field">
                 <label>Max Price</label>
@@ -41,7 +39,7 @@
                     <asp:ListItem Text="Up to R6000" Value="6000" />
                 </asp:DropDownList>
             </div>
-            <asp:Button ID="btnFilter" runat="server" Text="Filter" CssClass="btn-regal" OnClick="btnFilter_Click" />
+       <asp:Button ID="btnFilter" runat="server" Text="Search" CssClass="btn-regal" OnClick="btnFilter_Click" />
         </div>
 
         <!-- Room results -->

@@ -7,8 +7,6 @@ using System.Web.UI.WebControls;
 using System.Configuration;
 using System.Data.SqlClient;
 
-
-
 namespace CodeCrafters_Major_Project_Website
 {
     public partial class Default : System.Web.UI.Page
@@ -18,21 +16,29 @@ namespace CodeCrafters_Major_Project_Website
             if (!IsPostBack)
             {
                 BindFeaturedRooms();
+                BindRoomTypeDropdown();
             }
         }
 
-        // Pulls a handful of available rooms to showcase on the homepage,
-        // matched to your real Hotel_Room table in the GroupPmb2 database.
+        // Now pulls every available room instead of just the top 3.
         private void BindFeaturedRooms()
         {
             var rooms = new List<FeaturedRoom>();
 
             string connStr = ConfigurationManager.ConnectionStrings["DefaultConnection"].ConnectionString;
-            const string sql = @"SELECT TOP 3 Hotel_Room_ID, hotel_room_type, Hotel_Room_Price,
-                                         Max_Adults, Max_Children
-                                  FROM Hotel_Room
-                                  WHERE hotel_room_status = 'Available'
-                                  ORDER BY Hotel_Room_Price DESC";
+
+            // Picks one room per distinct hotel_room_type — the cheapest available
+            // room of each type, so Featured Rooms shows variety, not duplicates.
+            const string sql = @"
+        SELECT Hotel_Room_ID, hotel_room_type, Hotel_Room_Price, Max_Adults, Max_Children
+        FROM (
+            SELECT *,
+                   ROW_NUMBER() OVER (PARTITION BY hotel_room_type ORDER BY Hotel_Room_Price ASC) AS rn
+            FROM Hotel_Room
+            WHERE hotel_room_status = 'Available'
+        ) ranked
+        WHERE rn = 1
+        ORDER BY Hotel_Room_Price DESC";
 
             using (var conn = new SqlConnection(connStr))
             using (var cmd = new SqlCommand(sql, conn))
@@ -59,37 +65,67 @@ namespace CodeCrafters_Major_Project_Website
             rptFeaturedRooms.DataBind();
         }
 
-        // Max_Adults / Max_Children showed as NULL in your sample data —
-        // this guards against that until those columns are populated.
+        // Populates the search widget's Room Type dropdown from whatever
+        // distinct room types actually exist in the database right now.
+        private void BindRoomTypeDropdown()
+        {
+            string connStr = ConfigurationManager.ConnectionStrings["DefaultConnection"].ConnectionString;
+            const string sql = @"SELECT DISTINCT hotel_room_type FROM Hotel_Room ORDER BY hotel_room_type";
+
+            ddlRoomType.Items.Clear();
+            ddlRoomType.Items.Add(new ListItem("Any", ""));
+
+            using (var conn = new SqlConnection(connStr))
+            using (var cmd = new SqlCommand(sql, conn))
+            {
+                conn.Open();
+                using (var reader = cmd.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        string type = reader["hotel_room_type"].ToString();
+                        ddlRoomType.Items.Add(new ListItem(type, type));
+                    }
+                }
+            }
+        }
+
         private int SafeInt(object dbValue)
         {
             return dbValue == DBNull.Value ? 0 : Convert.ToInt32(dbValue);
         }
 
-        // Your Hotel_Room table has no ImageUrl column, so we pick a stock
-        // photo based on keywords in hotel_room_type. Once you add real
-        // room photos (e.g. to a Room_Images table or a fixed folder like
-        // ~/images/rooms/), swap this out for a real lookup.
+        // Matches each room type to the actual filenames sitting in
+        // ~/Images/. Ordered from most-specific to least-specific so
+        // "standard...king" and "standard...double" don't collide.
         public static string ImageForRoomType(string roomType)
         {
             string type = (roomType ?? string.Empty).ToLower();
 
+            if (type.Contains("suite") && type.Contains("twin"))
+                return ResolveImage("~/Images/SUITE ROOM TWIN BEDS.jpeg");
             if (type.Contains("suite"))
-                return ResolveImage("~/Images/Pictures/suite twin beds1.png");
-            if (type.Contains("twin"))
-                return ResolveImage("~/Images/Pictures/standard 2 double beds.jpg");
-            if (type.Contains("king"))
-                return ResolveImage("~/Images/Pictures/Standard king bed.jpg");
+                return ResolveImage("~/Images/SUITE ROOM 1 KING BED.jpeg");
 
-            return ResolveImage("~/Images/Pictures/Regal pic 1.jpg");
+            if (type.Contains("executive"))
+                return ResolveImage("~/Images/EXECUTIVE ROOM I KING BED.jpeg");
+
+            if (type.Contains("deluxe"))
+                return ResolveImage("~/Images/DELUXE ROOM 1 KING BED.jpeg");
+
+            if (type.Contains("standard") && type.Contains("double"))
+                return ResolveImage("~/Images/STANDARD ROOM 2 DOUBLE BEDS.jpeg");
+            if (type.Contains("standard"))
+                return ResolveImage("~/Images/STANDARD ROOM 1 KING BED.jpeg");
+
+            // Fallback for any type that doesn't match a known keyword
+            return ResolveImage("~/Images/regall inn home page.jpg");
         }
 
         private static string ResolveImage(string url) { return VirtualPathUtility.ToAbsolute(url); }
 
         protected void btnSearch_Click(object sender, EventArgs e)
         {
-            // Redirect to Rooms.aspx with the search criteria as query string,
-            // so results are pre-filtered on load — no login required to search.
             string url = string.Format(
                 "~/Rooms.aspx?checkin={0}&checkout={1}&guests={2}&type={3}",
                 Server.UrlEncode(txtCheckIn.Text),
@@ -108,7 +144,6 @@ namespace CodeCrafters_Major_Project_Website
                 return;
             }
 
-            // TODO: insert into a Newsletter table, or call your EmailService.
             litNewsletterMsg.Text = "<div class='form-msg success'>Thanks — you're subscribed!</div>";
             txtNewsletterEmail.Text = string.Empty;
         }

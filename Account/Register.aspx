@@ -38,6 +38,12 @@
                     ValidationExpression="^[^@\s]+@[^@\s]+\.[^@\s]+$"
                     CssClass="field-error" ErrorMessage="Enter a valid email." Display="Dynamic" />
             </div>
+                  
+            <div class="field">
+                 <label for="Phone">Phone number</label>
+                 <asp:TextBox runat="server" ID="Phone" CssClass="regal-input" placeholder="e.g. 0821234567" TabIndex="6" />
+                 <asp:RequiredFieldValidator runat="server" ControlToValidate="Phone" CssClass="field-error" ErrorMessage="Phone number is required." Display="Dynamic" />
+            </div>
 
             <div class="field">
                 <label for="Password">Password</label>
