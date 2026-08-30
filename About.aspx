@@ -6,7 +6,7 @@
 
 <asp:Content ID="BodyC" ContentPlaceHolderID="MainContent" runat="server">
 
-    <section class="hero" style="min-height:55vh; background-image:linear-gradient(180deg, rgba(0,53,128,.55), rgba(0,53,128,.78)), url('<%= ResolveUrl("~/Images/Pictures/Regal.jpg") %>');">
+    <section class="hero" style="min-height:65vh; background-image:linear-gradient(180deg, rgba(0,0,0,.10), rgba(0,0,0,.10)), url('<%= ResolveUrl("~/Images/Pictures/Regal.jpg") %>');">
         <div class="hero-inner">
             <div class="hero-eyebrow">Our Story</div>
             <h1>Hospitality, Elevated</h1>
@@ -25,7 +25,7 @@
        <asp:Repeater ID="BranchesRepeater" runat="server">
     <ItemTemplate>
         <article class="room-card">
-            <img src='<%# ResolveUrl("~/Images/Pictures/branches/" + Eval("Image")) %>' alt='<%# Eval("Name") %>' class="branch-image" />
+            <img src='<%# ResolveUrl("~/Images/Pictures/branches/" + Eval("Image")) %>' alt='<%# Eval("Name") %>' class="branch-image" style="width:100%; height:200px; object-fit:cover; display:block;"/>
             <div class="body">
                 <h3><%# Eval("Name") %></h3>
                 <p><%# Eval("Address") %></p>

@@ -1,7 +1,4 @@
-/* ==========================================================================
-   THE REGAL INN HOTEL — Design System v2
-   Light, clean, blue accent (Booking.com-inspired). No dark theme, no gold.
-   ========================================================================== */
+
 
 :root {
     --blue-900: #003580; /* deep brand blue — navbar, footer */
@@ -162,7 +159,7 @@ a {
     align-items: center;
     justify-content: center;
     text-align: center;
-    background: linear-gradient(180deg, rgba(0,53,128,.55), rgba(0,53,128,.75)), url('https://images.unsplash.com/photo-1566073771259-6a8506099945?q=80&w=1974&auto=format&fit=crop') center/cover no-repeat;
+    background: linear-gradient(180deg, rgba(0,0,0,.10), rgba(0,0,0,.10)),url('') center/cover no-repeat;
     padding: 2rem;
 }
 
@@ -717,15 +714,18 @@ a {
     overflow: hidden; /* keeps the image corners rounded with the card */
 }
 
-.branch-image {
-    width: 100%;
-    height: 200px;
-    object-fit: cover;
-    display: block;
-    border-bottom: 1px solid var(--gold, #c9a227);
-    transition: transform 0.4s ease;
-}
+    .room-card .branch-image
+    {
+        width: 100%;
+        height: 200px;
+        object-fit: cover;
+        display: block;
+        border-bottom: 1px solid var(--border);
+        transition: transform 0.4s ease;
+    }
 
-/*.room-card:hover .branch-image {
-    transform: scale(1.05);*/
-/*}*/
+
+    .room-card:hover .branch-image {
+        transform: scale(1.05);
+    }
+

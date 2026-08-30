@@ -7,7 +7,7 @@
 <asp:Content ID="BodyC" ContentPlaceHolderID="MainContent" runat="server">
 
     <!-- ================= HERO ================= -->
-    <section class="hero">
+    <section class="hero" style="min-height:65vh; background-image:linear-gradient(180deg, rgba(0,0,0,.20), rgba(0,0,0,.20)), url('<%= ResolveUrl("~/Images/Pictures/Regal.jpg") %>');">
         <div class="hero-inner">
             <div class="hero-eyebrow">Welcome to</div>
             <h1>The Regal Inn Hotel</h1>
