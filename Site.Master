@@ -44,7 +44,7 @@
                             </RoleGroups>
                         </asp:LoginView>
                         <li style="opacity:.85;">Hi, <asp:LoginName runat="server" /></li>
-                        <li><asp:LoginStatus ID="LoginStatus1" runat="server" LogoutAction="Redirect" LogoutPageUrl="~/Default.aspx" LogoutText="Log off" OnLoggingOut="LoginStatus1_LoggingOut" /></li>
+                        <li><asp:LoginStatus ID="LoginStatus1" runat="server" LogoutAction="Redirect" LogoutPageUrl="~/Default.aspx" LogoutText="Log out" OnLoggingOut="LoginStatus1_LoggingOut" /></li>
                     </LoggedInTemplate>
                 </asp:LoginView>
             </ul>
