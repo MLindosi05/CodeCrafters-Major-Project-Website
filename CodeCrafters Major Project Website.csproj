@@ -216,8 +216,10 @@
     <Content Include="Images\STANDARD ROOM 2 DOUBLE BEDS.jpeg" />
     <Content Include="Images\SUITE ROOM 1 KING BED.jpeg" />
     <Content Include="Images\SUITE ROOM TWIN BEDS.jpeg" />
+    <Content Include="js\cart-widget.js" />
     <Content Include="js\chatbot-widget.js" />
     <Content Include="js\site-interactions.js" />
+    <Content Include="Payments.aspx" />
     <Content Include="Private\Business Intelligence.aspx" />
     <Content Include="Private\Room Management.aspx" />
     <Content Include="Private\Staff Management.aspx" />
@@ -436,6 +438,13 @@
     </Compile>
     <Compile Include="Bookings\MyBookings.aspx.designer.cs">
       <DependentUpon>MyBookings.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Payments.aspx.cs">
+      <DependentUpon>Payments.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Payments.aspx.designer.cs">
+      <DependentUpon>Payments.aspx</DependentUpon>
     </Compile>
     <Compile Include="Private\Business Intelligence.aspx.cs">
       <DependentUpon>Business Intelligence.aspx</DependentUpon>

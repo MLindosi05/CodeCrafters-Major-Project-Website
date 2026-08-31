@@ -150,12 +150,12 @@ namespace CodeCrafters_Major_Project_Website
         protected global::System.Web.UI.WebControls.Button btnConfirmBooking;
 
         /// <summary>
-        /// btnCloseModal control.
+        /// Button1 control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Button btnCloseModal;
+        protected global::System.Web.UI.WebControls.Button Button1;
     }
 }

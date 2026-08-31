@@ -109,6 +109,10 @@ namespace CodeCrafters_Major_Project_Website
             decimal maxPrice = 0;
             decimal.TryParse(ddlMaxPrice.SelectedValue, out maxPrice);
             BindRooms(ddlBranch.SelectedValue, ddlRoomType.SelectedValue, maxPrice);
+
+            // Make sure a previously-opened booking modal doesn't carry over
+            // into the new search results via ViewState.
+            pnlBookingModal.Style["display"] = "none";
         }
 
         private void BindBranches()

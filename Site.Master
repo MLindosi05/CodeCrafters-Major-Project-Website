@@ -49,6 +49,33 @@
                 </asp:LoginView>
             </ul>
         </nav>
+        
+       <!-- ================= SHOPPING CART WIDGET ================= -->
+<div id="regal-cart-bubble" onclick="RegalCart.toggle()"
+     style="position:fixed; bottom:24px; right:94px; z-index:2000; width:58px; height:58px; border-radius:50%; background:var(--blue-900); display:flex; align-items:center; justify-content:center; cursor:pointer; box-shadow:var(--shadow-lg); font-size:1.4rem;">
+    🛒
+    <span id="regal-cart-count" style="display:none; position:absolute; top:-4px; right:-4px; background:var(--accent); color:#fff; font-size:.7rem; font-weight:700; min-width:20px; height:20px; border-radius:10px; align-items:center; justify-content:center; padding:0 5px;">0</span>
+</div>
+
+<div id="regal-cart-window"
+     style="display:none; flex-direction:column; position:fixed; bottom:94px; right:24px; z-index:2000; width:360px; max-width:90vw; max-height:70vh; background:#fff; border-radius:var(--radius-lg); border:1px solid var(--border); overflow:hidden; box-shadow:var(--shadow-lg);">
+    <div style="background:var(--blue-900); color:#fff; padding:1rem; font-weight:700; display:flex; justify-content:space-between; align-items:center;">
+        <span>Your Selected Rooms</span>
+        <button type="button" onclick="RegalCart.toggle()" style="background:none; border:none; color:#fff; font-size:1.1rem; cursor:pointer; opacity:.85;">✕</button>
+    </div>
+    <div id="regal-cart-body" style="flex:1; padding:1rem; overflow-y:auto; display:flex; flex-direction:column; gap:.8rem;">
+        <div class="cart-empty" style="text-align:center; color:var(--text-muted); padding:2rem 1rem; font-size:.9rem;">No rooms selected yet. Browse Rooms &amp; Rates to add some.</div>
+    </div>
+    <div id="regal-cart-footer" style="display:none; padding:1rem; border-top:1px solid var(--border); background:var(--blue-50);">
+        <div style="display:flex; justify-content:space-between; font-weight:700; margin-bottom:.8rem; color:var(--text);">
+            <span>Total</span>
+            <span id="regal-cart-total">R0</span>
+        </div>
+       <a href="~/Payments.aspx" runat="server" class="btn-regal" style="width:100%; text-align:center; display:block;">Continue to Booking</a>
+    </div>
+</div>
+        <!-- ================= PAGE CONTENT ================= -->
+        <asp:ContentPlaceHolder ID="ContentPlaceHolder1" runat="server" />
 
         <!-- ================= PAGE CONTENT ================= -->
         <asp:ContentPlaceHolder ID="MainContent" runat="server" />
@@ -67,6 +94,7 @@
 
     <script src="<%= ResolveUrl("~/js/site-interactions.js") %>"></script>
     <script src="<%= ResolveUrl("~/js/chatbot-widget.js") %>"></script>
+    <script src="<%= ResolveUrl("~/js/cart-widget.js") %>"></script>
     <asp:ContentPlaceHolder ID="ScriptContent" runat="server" />
 </body>
 </html>

@@ -42,26 +42,32 @@
         <!-- Room results -->
         <asp:Repeater ID="rptRooms" runat="server" OnItemCommand="rptRooms_ItemCommand">
             <HeaderTemplate><div class="room-grid"></HeaderTemplate>
-            <ItemTemplate>
-                <div class="room-card">
-                    <div class="img-wrap">
-                        <img src='<%# Eval("ImageUrl") %>' alt='<%# Eval("RoomName") %>' />
-                    </div>
-                    <div class="body">
-                        <h3><%# Eval("RoomName") %></h3>
-                        <p style="color:var(--cream-dim); font-size:.9rem;"><%# Eval("Blurb") %></p>
-                        <p style="color:var(--text-muted); font-size:.78rem; margin-top:-.5rem;">Room <%# Eval("RoomNumber") %> · <%# Eval("BranchName") %></p>
-                        <div class="amenities">
-                            <span class="badge-amenity">Sleeps <%# Eval("MaxGuests") %></span>
-                            <span class="badge-amenity">Free Wi-Fi</span>
-                            <span class="badge-amenity">Breakfast Included</span>
-                        </div>
-                        <div class="price">R<%# Eval("PricePerNight") %> / night</div>
-                        <asp:Button runat="server" Text="Book Now" CssClass="btn-regal"
-                            CommandName="Book" CommandArgument='<%# Eval("RoomId") %>' />
-                    </div>
-                </div>
-            </ItemTemplate>
+         <ItemTemplate>
+    <div class="room-card">
+        <div class="img-wrap">
+            <img src='<%# Eval("ImageUrl") %>' alt='<%# Eval("RoomName") %>' />
+        </div>
+        <div class="body">
+            <h3><%# Eval("RoomName") %></h3>
+            <p style="color:var(--cream-dim); font-size:.9rem;"><%# Eval("Blurb") %></p>
+            <p style="color:var(--text-muted); font-size:.78rem; margin-top:-.5rem;">Room <%# Eval("RoomNumber") %> · <%# Eval("BranchName") %></p>
+            <div class="amenities">
+                <span class="badge-amenity">Sleeps <%# Eval("MaxGuests") %></span>
+                <span class="badge-amenity">Free Wi-Fi</span>
+                <span class="badge-amenity">Breakfast Included</span>
+            </div>
+            <div class="price">R<%# Eval("PricePerNight") %> / night</div>
+            <div style="display:flex; gap:.6rem;">
+                <asp:Button runat="server" Text="Book Now" CssClass="btn-regal"
+                    CommandName="Book" CommandArgument='<%# Eval("RoomId") %>' />
+                <button type="button" class="btn-outline"
+                    onclick="RegalCart.add({roomId:'<%# Eval("RoomId") %>', roomName:'<%# Eval("RoomName") %>', branchName:'<%# Eval("BranchName") %>', pricePerNight:'<%# Eval("PricePerNight") %>'})">
+                    Add to Cart
+                </button>
+            </div>
+        </div>
+    </div>
+</ItemTemplate>
             <FooterTemplate></div></FooterTemplate>
         </asp:Repeater>
 
@@ -95,7 +101,11 @@
         </asp:Panel>
 
         <asp:Button ID="btnConfirmBooking" runat="server" Text="Confirm Booking" CssClass="btn-regal" OnClick="btnConfirmBooking_Click" />
-        <asp:Button ID="btnCloseModal" runat="server" Text="Cancel" CssClass="btn-outline" CausesValidation="false" OnClientClick="document.getElementById('regalBookingModalWrap').style.display='none'; return false;" />
+               <asp:Button ID="Button1" runat="server" Text="Confirm Booking" CssClass="btn-regal" OnClick="btnConfirmBooking_Click" />
+        <button type="button" class="btn-outline" onclick="
+            document.getElementById('regalBookingModalWrap').style.display='none';
+            document.getElementById('<%= pnlBookingModal.ClientID %>').style.display='none';
+        ">Cancel</button>
     </asp:Panel>
     <div id="regalBookingModalWrap" style="display:none; position:fixed; inset:0; background:rgba(7,21,34,.75); z-index:1400;"></div>
 
