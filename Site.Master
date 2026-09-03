@@ -26,7 +26,7 @@
 
                 <asp:LoginView runat="server">
                     <AnonymousTemplate>
-                        <li><a href="~/Account/Register.aspx" runat="server">Register</a></li>
+                        <%--<li><a href="~/Account/Register.aspx" runat="server">Register</a></li>--%>
                         <li><a class="nav-cta" href="~/Account/Login.aspx" runat="server">Log In</a></li>
                     </AnonymousTemplate>
                     <LoggedInTemplate>
@@ -43,7 +43,7 @@
                                 </asp:RoleGroup>
                             </RoleGroups>
                         </asp:LoginView>
-                        <li style="opacity:.85;">Hi, <asp:LoginName runat="server" /></li>
+                       <li style="color:#fff; text-decoration:underline; opacity:1;">Hi, <asp:LoginName runat="server" /></li>
                         <li><asp:LoginStatus ID="LoginStatus1" runat="server" LogoutAction="Redirect" LogoutPageUrl="~/Default.aspx" LogoutText="Log out" OnLoggingOut="LoginStatus1_LoggingOut" /></li>
                     </LoggedInTemplate>
                 </asp:LoginView>

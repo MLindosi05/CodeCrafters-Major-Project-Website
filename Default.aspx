@@ -42,7 +42,7 @@
             <label for="ddlRoomType">Room Type</label>
           <asp:DropDownList ID="ddlRoomType" runat="server" />
         </div>
-        <asp:Button ID="btnSearch" runat="server" Text="Search Rooms" CssClass="btn-regal" OnClick="btnSearch_Click" />
+        <asp:Button ID="btnSearch" runat="server" Text="Search" CssClass="btn-regal" OnClick="btnSearch_Click" />
     </div>
 
     <!-- ================= WHY CHOOSE US ================= -->
