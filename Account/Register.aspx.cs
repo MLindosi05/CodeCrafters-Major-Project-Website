@@ -74,8 +74,8 @@ namespace CodeCrafters_Major_Project_Website.Account
         private void CreateClientProfile(string email)
         {
             const string sql = @"IF NOT EXISTS (SELECT 1 FROM Client WHERE Email_Address = @Email)
-INSERT INTO Client (First_Name, Last_Name, Password, Email_Address, Phone_Number, Client_Status, Date_Registered)
-VALUES (@FirstName, @LastName, '[Identity managed]', @Email, @Phone, 'Active', CAST(GETDATE() AS date));";
+             INSERT INTO Client (First_Name, Last_Name, Password, Email_Address, Phone_Number, Client_Status, Date_Registered)
+             VALUES (@FirstName, @LastName, '[Identity managed]', @Email, @Phone, 'Active', CAST(GETDATE() AS date));";
 
             using (var connection = new SqlConnection(ConfigurationManager.ConnectionStrings["DefaultConnection"].ConnectionString))
             using (var command = new SqlCommand(sql, connection))
@@ -99,6 +99,7 @@ VALUES (@FirstName, @LastName, '[Identity managed]', @Email, @Phone, 'Active', C
                     DateTime.Now + " | " + message + Environment.NewLine);
             }
             catch { /* never let logging break registration */ }
+
         }
     }
 }

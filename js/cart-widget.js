@@ -18,11 +18,12 @@ var RegalCart = (function () {
     function saveItems(items) {
         sessionStorage.setItem(STORAGE_KEY, JSON.stringify(items));
         render();
+        updateTotal();
     }
 
     function addItem(room) {
         var items = getItems();
-        // Avoid adding the exact same room twice
+    
         if (items.some(function (i) { return i.roomId === room.roomId; })) return;
         items.push(room);
         saveItems(items);
@@ -37,15 +38,31 @@ var RegalCart = (function () {
         if (!win) return;
         win.style.display = (win.style.display === "flex") ? "none" : "flex";
     }
+    function updateTotal() {
+        var items = getItems();
+        var total = 0;
+        items.forEach(function (item) {
+           
+            var cleaned = String(item.pricePerNight)
+                .replace(/[^0-9,.]/g, "") 
+                .replace(",", ".");    
+            var price = parseFloat(cleaned);
+            if (!isNaN(price)) total += price;
+        });
+        document.querySelectorAll("#regal-cart-total").forEach(function (el) {
+            el.textContent = "R" + total.toFixed(2).replace(".", ",");
+        });
+    }
 
     function render() {
+        updateTotal();
         var items = getItems();
         var body = document.getElementById("regal-cart-body");
         var footer = document.getElementById("regal-cart-footer");
         var countBadge = document.getElementById("regal-cart-count");
         var totalEl = document.getElementById("regal-cart-total");
 
-        if (!body) return; // widget not on this page yet
+        if (!body) return; 
 
         if (items.length === 0) {
             body.innerHTML = '<div class="cart-empty">No rooms selected yet. Browse Rooms &amp; Rates to add some.</div>';

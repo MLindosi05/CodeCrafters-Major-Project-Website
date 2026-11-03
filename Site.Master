@@ -69,7 +69,7 @@
     <div id="regal-cart-footer" style="display:none; padding:1rem; border-top:1px solid var(--border); background:var(--blue-50);">
         <div style="display:flex; justify-content:space-between; font-weight:700; margin-bottom:.8rem; color:var(--text);">
             <span>Total</span>
-            <span id="regal-cart-total">R0</span>
+            <span id="regal-cart-total"></span>
         </div>
        <a href="~/Payments.aspx" runat="server" class="btn-regal" style="width:100%; text-align:center; display:block;">Continue to Booking</a>
     </div>

@@ -1,9 +1,4 @@
-    // ==========================================================================
-    // The Regal Inn Hotel — Concierge Chatbot Widget
-    // Self-contained rule-based FAQ bot. Injects its own HTML into the page,
-    // so it only needs to be included once (from Site.Master) to appear
-    // site-wide. Swap answerFor() with an API call later for AI responses.
-    // ==========================================================================
+
     (function () {
         "use strict";
 
