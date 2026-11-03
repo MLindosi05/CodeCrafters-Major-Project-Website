@@ -3,7 +3,7 @@
         "use strict";
 
         var FAQ = [
-            { keys: ["check in", "checkin", "arrival"], answer: "Check-in is from 14:00. Early check-in is subject to availability — just ask at Reception on arrival." },
+            { keys: ["check in", "checkin", "arrival"], answer: "Check-in is from 15:00. Early check-in is subject to availability — just ask at Reception on arrival." },
             { keys: ["check out", "checkout", "departure"], answer: "Check-out is at 11:00. Late check-out can be arranged for a small fee, availability permitting." },
             { keys: ["cancel", "refund", "cancellation"], answer: "Free cancellation up to 48 hours before arrival. Within 48 hours, the first night is charged." },
             { keys: ["parking"], answer: "Complimentary secure on-site parking is available for all guests." },
