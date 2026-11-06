@@ -21,6 +21,8 @@
      </div>
      <hr />
      <hr />
+     <hr />
+
      <div>
          <asp:SqlDataSource ID="sQLDSBookings" runat="server" ConnectionString="<%$ ConnectionStrings:ConnString %>" SelectCommand="SELECT [Booking_ID], [Client_ID], [Branch_ID], [Booking_Date], [Checkin_Date], [Checkout_Date], [Booking_Total_Amount], [Booking_Status], [Booking_Type] FROM [Booking] WHERE ([Client_ID] = @Client_ID)">
              <SelectParameters>
