@@ -73,7 +73,82 @@
         </div>
        <a href="~/Payments.aspx" runat="server" class="btn-regal" style="width:100%; text-align:center; display:block;">Continue to Booking</a>
     </div>
+   
 </div>
+         <asp:SqlDataSource ID="SqlDSInsertBooking" runat="server" ConflictDetection="CompareAllValues" ConnectionString="<%$ ConnectionStrings:ConnString %>" DeleteCommand="DELETE FROM [Booking] WHERE [Booking_ID] = @original_Booking_ID AND (([Client_ID] = @original_Client_ID) OR ([Client_ID] IS NULL AND @original_Client_ID IS NULL)) AND (([Branch_ID] = @original_Branch_ID) OR ([Branch_ID] IS NULL AND @original_Branch_ID IS NULL)) AND (([Booking_Date] = @original_Booking_Date) OR ([Booking_Date] IS NULL AND @original_Booking_Date IS NULL)) AND (([Checkin_Date] = @original_Checkin_Date) OR ([Checkin_Date] IS NULL AND @original_Checkin_Date IS NULL)) AND (([Checkout_Date] = @original_Checkout_Date) OR ([Checkout_Date] IS NULL AND @original_Checkout_Date IS NULL)) AND (([Booking_Total_Amount] = @original_Booking_Total_Amount) OR ([Booking_Total_Amount] IS NULL AND @original_Booking_Total_Amount IS NULL)) AND (([Booking_Status] = @original_Booking_Status) OR ([Booking_Status] IS NULL AND @original_Booking_Status IS NULL)) AND (([Cancellation_Date] = @original_Cancellation_Date) OR ([Cancellation_Date] IS NULL AND @original_Cancellation_Date IS NULL)) AND (([Cancellation_Reason] = @original_Cancellation_Reason) OR ([Cancellation_Reason] IS NULL AND @original_Cancellation_Reason IS NULL)) AND (([Admin_Notes] = @original_Admin_Notes) OR ([Admin_Notes] IS NULL AND @original_Admin_Notes IS NULL)) AND (([Number_Adults] = @original_Number_Adults) OR ([Number_Adults] IS NULL AND @original_Number_Adults IS NULL)) AND (([Number_Children] = @original_Number_Children) OR ([Number_Children] IS NULL AND @original_Number_Children IS NULL)) AND (([Booking_Type] = @original_Booking_Type) OR ([Booking_Type] IS NULL AND @original_Booking_Type IS NULL)) AND (([Penalty_Amount] = @original_Penalty_Amount) OR ([Penalty_Amount] IS NULL AND @original_Penalty_Amount IS NULL)) AND (([Credit_Amount] = @original_Credit_Amount) OR ([Credit_Amount] IS NULL AND @original_Credit_Amount IS NULL)) AND (([Staff_Created_By] = @original_Staff_Created_By) OR ([Staff_Created_By] IS NULL AND @original_Staff_Created_By IS NULL))" InsertCommand="INSERT INTO [Booking] ([Client_ID], [Branch_ID], [Booking_Date], [Checkin_Date], [Checkout_Date], [Booking_Total_Amount], [Booking_Status], [Cancellation_Date], [Cancellation_Reason], [Admin_Notes], [Number_Adults], [Number_Children], [Booking_Type], [Penalty_Amount], [Credit_Amount], [Staff_Created_By]) VALUES (@Client_ID, @Branch_ID, @Booking_Date, @Checkin_Date, @Checkout_Date, @Booking_Total_Amount, @Booking_Status, @Cancellation_Date, @Cancellation_Reason, @Admin_Notes, @Number_Adults, @Number_Children, @Booking_Type, @Penalty_Amount, @Credit_Amount, @Staff_Created_By)" OldValuesParameterFormatString="original_{0}" SelectCommand="SELECT * FROM [Booking]" UpdateCommand="UPDATE [Booking] SET [Client_ID] = @Client_ID, [Branch_ID] = @Branch_ID, [Booking_Date] = @Booking_Date, [Checkin_Date] = @Checkin_Date, [Checkout_Date] = @Checkout_Date, [Booking_Total_Amount] = @Booking_Total_Amount, [Booking_Status] = @Booking_Status, [Cancellation_Date] = @Cancellation_Date, [Cancellation_Reason] = @Cancellation_Reason, [Admin_Notes] = @Admin_Notes, [Number_Adults] = @Number_Adults, [Number_Children] = @Number_Children, [Booking_Type] = @Booking_Type, [Penalty_Amount] = @Penalty_Amount, [Credit_Amount] = @Credit_Amount, [Staff_Created_By] = @Staff_Created_By WHERE [Booking_ID] = @original_Booking_ID AND (([Client_ID] = @original_Client_ID) OR ([Client_ID] IS NULL AND @original_Client_ID IS NULL)) AND (([Branch_ID] = @original_Branch_ID) OR ([Branch_ID] IS NULL AND @original_Branch_ID IS NULL)) AND (([Booking_Date] = @original_Booking_Date) OR ([Booking_Date] IS NULL AND @original_Booking_Date IS NULL)) AND (([Checkin_Date] = @original_Checkin_Date) OR ([Checkin_Date] IS NULL AND @original_Checkin_Date IS NULL)) AND (([Checkout_Date] = @original_Checkout_Date) OR ([Checkout_Date] IS NULL AND @original_Checkout_Date IS NULL)) AND (([Booking_Total_Amount] = @original_Booking_Total_Amount) OR ([Booking_Total_Amount] IS NULL AND @original_Booking_Total_Amount IS NULL)) AND (([Booking_Status] = @original_Booking_Status) OR ([Booking_Status] IS NULL AND @original_Booking_Status IS NULL)) AND (([Cancellation_Date] = @original_Cancellation_Date) OR ([Cancellation_Date] IS NULL AND @original_Cancellation_Date IS NULL)) AND (([Cancellation_Reason] = @original_Cancellation_Reason) OR ([Cancellation_Reason] IS NULL AND @original_Cancellation_Reason IS NULL)) AND (([Admin_Notes] = @original_Admin_Notes) OR ([Admin_Notes] IS NULL AND @original_Admin_Notes IS NULL)) AND (([Number_Adults] = @original_Number_Adults) OR ([Number_Adults] IS NULL AND @original_Number_Adults IS NULL)) AND (([Number_Children] = @original_Number_Children) OR ([Number_Children] IS NULL AND @original_Number_Children IS NULL)) AND (([Booking_Type] = @original_Booking_Type) OR ([Booking_Type] IS NULL AND @original_Booking_Type IS NULL)) AND (([Penalty_Amount] = @original_Penalty_Amount) OR ([Penalty_Amount] IS NULL AND @original_Penalty_Amount IS NULL)) AND (([Credit_Amount] = @original_Credit_Amount) OR ([Credit_Amount] IS NULL AND @original_Credit_Amount IS NULL)) AND (([Staff_Created_By] = @original_Staff_Created_By) OR ([Staff_Created_By] IS NULL AND @original_Staff_Created_By IS NULL))">
+             <DeleteParameters>
+                 <asp:Parameter Name="original_Booking_ID" Type="Int32" />
+                 <asp:Parameter Name="original_Client_ID" Type="Int32" />
+                 <asp:Parameter Name="original_Branch_ID" Type="String" />
+                 <asp:Parameter DbType="Date" Name="original_Booking_Date" />
+                 <asp:Parameter DbType="Date" Name="original_Checkin_Date" />
+                 <asp:Parameter DbType="Date" Name="original_Checkout_Date" />
+                 <asp:Parameter Name="original_Booking_Total_Amount" Type="Decimal" />
+                 <asp:Parameter Name="original_Booking_Status" Type="String" />
+                 <asp:Parameter Name="original_Cancellation_Date" Type="DateTime" />
+                 <asp:Parameter Name="original_Cancellation_Reason" Type="String" />
+                 <asp:Parameter Name="original_Admin_Notes" Type="String" />
+                 <asp:Parameter Name="original_Number_Adults" Type="Int32" />
+                 <asp:Parameter Name="original_Number_Children" Type="Int32" />
+                 <asp:Parameter Name="original_Booking_Type" Type="String" />
+                 <asp:Parameter Name="original_Penalty_Amount" Type="Decimal" />
+                 <asp:Parameter Name="original_Credit_Amount" Type="Decimal" />
+                 <asp:Parameter Name="original_Staff_Created_By" Type="String" />
+             </DeleteParameters>
+             <InsertParameters>
+                 <asp:Parameter Name="Client_ID" Type="Int32" />
+                 <asp:Parameter Name="Branch_ID" Type="String" />
+                 <asp:Parameter DbType="Date" Name="Booking_Date" />
+                 <asp:Parameter DbType="Date" Name="Checkin_Date" />
+                 <asp:Parameter DbType="Date" Name="Checkout_Date" />
+                 <asp:Parameter Name="Booking_Total_Amount" Type="Decimal" />
+                 <asp:Parameter Name="Booking_Status" Type="String" />
+                 <asp:Parameter Name="Cancellation_Date" Type="DateTime" />
+                 <asp:Parameter Name="Cancellation_Reason" Type="String" />
+                 <asp:Parameter Name="Admin_Notes" Type="String" />
+                 <asp:Parameter Name="Number_Adults" Type="Int32" />
+                 <asp:Parameter Name="Number_Children" Type="Int32" />
+                 <asp:Parameter Name="Booking_Type" Type="String" />
+                 <asp:Parameter Name="Penalty_Amount" Type="Decimal" />
+                 <asp:Parameter Name="Credit_Amount" Type="Decimal" />
+                 <asp:Parameter Name="Staff_Created_By" Type="String" />
+             </InsertParameters>
+             <UpdateParameters>
+                 <asp:Parameter Name="Client_ID" Type="Int32" />
+                 <asp:Parameter Name="Branch_ID" Type="String" />
+                 <asp:Parameter DbType="Date" Name="Booking_Date" />
+                 <asp:Parameter DbType="Date" Name="Checkin_Date" />
+                 <asp:Parameter DbType="Date" Name="Checkout_Date" />
+                 <asp:Parameter Name="Booking_Total_Amount" Type="Decimal" />
+                 <asp:Parameter Name="Booking_Status" Type="String" />
+                 <asp:Parameter Name="Cancellation_Date" Type="DateTime" />
+                 <asp:Parameter Name="Cancellation_Reason" Type="String" />
+                 <asp:Parameter Name="Admin_Notes" Type="String" />
+                 <asp:Parameter Name="Number_Adults" Type="Int32" />
+                 <asp:Parameter Name="Number_Children" Type="Int32" />
+                 <asp:Parameter Name="Booking_Type" Type="String" />
+                 <asp:Parameter Name="Penalty_Amount" Type="Decimal" />
+                 <asp:Parameter Name="Credit_Amount" Type="Decimal" />
+                 <asp:Parameter Name="Staff_Created_By" Type="String" />
+                 <asp:Parameter Name="original_Booking_ID" Type="Int32" />
+                 <asp:Parameter Name="original_Client_ID" Type="Int32" />
+                 <asp:Parameter Name="original_Branch_ID" Type="String" />
+                 <asp:Parameter DbType="Date" Name="original_Booking_Date" />
+                 <asp:Parameter DbType="Date" Name="original_Checkin_Date" />
+                 <asp:Parameter DbType="Date" Name="original_Checkout_Date" />
+                 <asp:Parameter Name="original_Booking_Total_Amount" Type="Decimal" />
+                 <asp:Parameter Name="original_Booking_Status" Type="String" />
+                 <asp:Parameter Name="original_Cancellation_Date" Type="DateTime" />
+                 <asp:Parameter Name="original_Cancellation_Reason" Type="String" />
+                 <asp:Parameter Name="original_Admin_Notes" Type="String" />
+                 <asp:Parameter Name="original_Number_Adults" Type="Int32" />
+                 <asp:Parameter Name="original_Number_Children" Type="Int32" />
+                 <asp:Parameter Name="original_Booking_Type" Type="String" />
+                 <asp:Parameter Name="original_Penalty_Amount" Type="Decimal" />
+                 <asp:Parameter Name="original_Credit_Amount" Type="Decimal" />
+                 <asp:Parameter Name="original_Staff_Created_By" Type="String" />
+             </UpdateParameters>
+        </asp:SqlDataSource>
         <!-- ================= PAGE CONTENT ================= -->
         <asp:ContentPlaceHolder ID="ContentPlaceHolder1" runat="server" />
 

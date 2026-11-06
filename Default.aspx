@@ -13,7 +13,7 @@
             <h1>The Regal Inn Hotel</h1>
             <p>Timeless comfort, modern hospitality. Discover a stay crafted around you, wherever you are in South Africa.</p>
             <div class="hero-actions">
-                <a href="#search" class="btn-regal">Check Availability</a>
+                <%--<a href="#search" class="btn-regal">Check Availability</a>--%>
                 <a href="~/Rooms.aspx" runat="server" class="btn-outline">Explore Rooms</a>
             </div>
         </div>
@@ -89,7 +89,7 @@
                             <span class="badge-amenity">Breakfast</span>
                             <span class="badge-amenity">Air-con</span>
                         </div>
-                        <div class="price">R<%# Eval("PricePerNight") %> / night</div>
+                        <div class="price">R<%# Eval("PricePerNight") %>/ night</div>
                         <a class="btn-regal" href='<%# "Rooms.aspx?roomId=" + Eval("RoomId") %>'>View &amp; Book</a>
                     </div>
                 </div>

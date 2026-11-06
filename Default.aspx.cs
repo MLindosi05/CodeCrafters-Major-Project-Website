@@ -103,20 +103,20 @@ namespace CodeCrafters_Major_Project_Website
             string type = (roomType ?? string.Empty).ToLower();
 
             if (type.Contains("suite") && type.Contains("twin"))
-                return ResolveImage("~/Images/SUITE ROOM TWIN BEDS.jpeg");
+                return ResolveImage("~/Images/SUITE ROOM TWIN BEDS.png");
             if (type.Contains("suite"))
-                return ResolveImage("~/Images/SUITE ROOM 1 KING BED.jpeg");
+                return ResolveImage("~/Images/SUITE ROOM 1 KING BED.png");
 
             if (type.Contains("executive"))
-                return ResolveImage("~/Images/EXECUTIVE ROOM I KING BED.jpeg");
+                return ResolveImage("~/Images/EXECUTIVE ROOM I KING BED.png");
 
             if (type.Contains("deluxe"))
-                return ResolveImage("~/Images/DELUXE ROOM 1 KING BED.jpeg");
+                return ResolveImage("~/Images/DELUXE ROOM 1 KING BED.png");
 
             if (type.Contains("standard") && type.Contains("double"))
-                return ResolveImage("~/Images/STANDARD ROOM 2 DOUBLE BEDS.jpeg");
+                return ResolveImage("~/Images/STANDARD ROOM 2 DOUBLE BEDS.png");
             if (type.Contains("standard"))
-                return ResolveImage("~/Images/STANDARD ROOM 1 KING BED.jpeg");
+                return ResolveImage("~/Images/STANDARD ROOM 1 KING BED.png");
 
             // Fallback for any type that doesn't match a known keyword
             return ResolveImage("~/Images/regall inn home page.jpg");

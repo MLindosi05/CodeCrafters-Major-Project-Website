@@ -189,7 +189,9 @@
     <Content Include="favicon.ico" />
     <Content Include="Global.asax" />
     <Content Include="Images\DELUXE ROOM 1 KING BED.jpeg" />
+    <Content Include="Images\DELUXE ROOM 1 KING BED.png" />
     <Content Include="Images\EXECUTIVE ROOM I KING BED.jpeg" />
+    <Content Include="Images\EXECUTIVE ROOM I KING BED.png" />
     <Content Include="Images\Pictures\Branches\balito.jpg" />
     <Content Include="Images\Pictures\Ballito.jpg" />
     <Content Include="Images\Pictures\Branches\regall inn home page.jpg" />
@@ -213,9 +215,13 @@
     <Content Include="Images\Pictures\Branches\Umhlanga.jpg" />
     <Content Include="Images\regall inn home page.jpg" />
     <Content Include="Images\STANDARD ROOM 1 KING BED.jpeg" />
+    <Content Include="Images\STANDARD ROOM 1 KING BED.png" />
     <Content Include="Images\STANDARD ROOM 2 DOUBLE BEDS.jpeg" />
+    <Content Include="Images\STANDARD ROOM 2 DOUBLE BEDS.png" />
     <Content Include="Images\SUITE ROOM 1 KING BED.jpeg" />
+    <Content Include="Images\SUITE ROOM 1 KING BED.png" />
     <Content Include="Images\SUITE ROOM TWIN BEDS.jpeg" />
+    <Content Include="Images\SUITE ROOM TWIN BEDS.png" />
     <Content Include="js\cart-widget.js" />
     <Content Include="js\chatbot-widget.js" />
     <Content Include="js\site-interactions.js" />
@@ -255,6 +261,13 @@
     <Content Include="Content\bootstrap-grid.css.map" />
     <Content Include="Account\Web.config" />
     <Content Include="Private\Web.config" />
+    <Content Include="Images\Web.config" />
+    <None Include="Images\Web.Debug.config">
+      <DependentUpon>Web.config</DependentUpon>
+    </None>
+    <None Include="Images\Web.Release.config">
+      <DependentUpon>Web.config</DependentUpon>
+    </None>
     <None Include="Scripts\jquery-3.7.0.intellisense.js" />
     <Content Include="Scripts\jquery-3.7.0.js" />
     <Content Include="Scripts\jquery-3.7.0.min.js" />
