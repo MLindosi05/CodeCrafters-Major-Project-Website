@@ -38,6 +38,10 @@
                 <asp:ListItem Text="4+ Guests" Value="4" />
             </asp:DropDownList>
         </div>
+          <div class="field">
+      <label>Branch</label>
+      <asp:DropDownList ID="ddlBranch" runat="server" />
+  </div>
         <div class="field">
             <label for="ddlRoomType">Room Type</label>
           <asp:DropDownList ID="ddlRoomType" runat="server" />
@@ -130,5 +134,6 @@
         </div>
         <asp:Literal ID="litNewsletterMsg" runat="server" />
     </section>
+
 
 </asp:Content>

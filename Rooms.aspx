@@ -19,6 +19,15 @@
                 <label>Check-out</label>
                 <asp:TextBox ID="txtCheckOut" runat="server" TextMode="Date" />
             </div>
+              <div class="field">
+      <label for="ddlGuests">Guests</label>
+      <asp:DropDownList ID="ddlGuests" runat="server">
+          <asp:ListItem Text="1 Guest" Value="1" />
+          <asp:ListItem Text="2 Guests" Value="2" Selected="True" />
+          <asp:ListItem Text="3 Guests" Value="3" />
+          <asp:ListItem Text="4+ Guests" Value="4" />
+      </asp:DropDownList>
+  </div>
             <div class="field">
                 <label>Branch</label>
                 <asp:DropDownList ID="ddlBranch" runat="server" />
@@ -31,9 +40,9 @@
                 <label>Max Price</label>
                 <asp:DropDownList ID="ddlMaxPrice" runat="server">
                     <asp:ListItem Text="Any" Value="0" />
-                    <asp:ListItem Text="Up to R1500" Value="1500" />
+                    <asp:ListItem Text="Up to R1800" Value="1800" />
+                    <asp:ListItem Text="Up to R2500" Value="2500" />
                     <asp:ListItem Text="Up to R3000" Value="3000" />
-                    <asp:ListItem Text="Up to R6000" Value="6000" />
                 </asp:DropDownList>
             </div>
             <asp:Button ID="btnFilter" runat="server" Text="Search" CssClass="btn-regal" OnClick="btnFilter_Click" />
@@ -58,8 +67,8 @@
             </div>
             <div class="price">R<%# Eval("PricePerNight") %> / night</div>
             <div style="display:flex; gap:.6rem;">
-                <asp:Button runat="server" Text="Book Now" CssClass="btn-regal"
-                    CommandName="Book" CommandArgument='<%# Eval("RoomId") %>' />
+              <%--  <asp:Button runat="server" Text="Book Now" CssClass="btn-regal"
+                    CommandName="Book" CommandArgument='<%# Eval("RoomId") %>' />--%>
                 <button type="button" class="btn-outline"
                     onclick="RegalCart.add({roomId:'<%# Eval("RoomId") %>', roomName:'<%# Eval("RoomName") %>', branchName:'<%# Eval("BranchName") %>', pricePerNight:'<%# Eval("PricePerNight") %>'})">
                     Add to Cart
@@ -101,7 +110,7 @@
         </asp:Panel>
 
         <asp:Button ID="btnConfirmBooking" runat="server" Text="Confirm Booking" CssClass="btn-regal" OnClick="btnConfirmBooking_Click" />
-               <asp:Button ID="Button1" runat="server" Text="Confirm Booking" CssClass="btn-regal" OnClick="btnConfirmBooking_Click" />
+              
         <button type="button" class="btn-outline" onclick="
             document.getElementById('regalBookingModalWrap').style.display='none';
             document.getElementById('<%= pnlBookingModal.ClientID %>').style.display='none';

@@ -97,11 +97,21 @@ namespace CodeCrafters_Major_Project_Website
         private string BlurbForRoomType(string roomType)
         {
             string type = (roomType ?? string.Empty).ToLower();
-            if (type.Contains("suite"))
+            if (type.Contains("standard"))
                 return "Spacious suite with extra living space, ideal for longer stays.";
+            if (type.Contains("Double"))
+                return "Spacious standard room with extra living space, ideal for trips with friends .";
             if (type.Contains("twin"))
                 return "Comfortable twin-bed room, perfect for friends or family sharing.";
+            if (type.Contains("King"))
+                return "Comfortable ome bed room, perfect for a leisure experience.";
+            if (type.Contains("Deluxe"))
+                return "Superb room designed for a luxurious stay and experiene.";
+            if (type.Contains("Executive"))
+                return "Executive experience for businessmen and woman who require a few nights of a stay in class";
             return "Well-appointed room with everything you need for a restful stay.";
+
+
         }
 
         protected void btnFilter_Click(object sender, EventArgs e)

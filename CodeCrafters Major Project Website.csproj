@@ -54,6 +54,7 @@
     <Reference Include="System.Data" />
     <Reference Include="System.Core" />
     <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="System.Net.Http" />
     <Reference Include="System.Web.Extensions" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Drawing" />
@@ -268,6 +269,7 @@
     <None Include="Images\Web.Release.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
+    <Content Include="PayPal\CreateOrder.ashx" />
     <None Include="Scripts\jquery-3.7.0.intellisense.js" />
     <Content Include="Scripts\jquery-3.7.0.js" />
     <Content Include="Scripts\jquery-3.7.0.min.js" />
@@ -459,6 +461,10 @@
     <Compile Include="Payments.aspx.designer.cs">
       <DependentUpon>Payments.aspx</DependentUpon>
     </Compile>
+    <Compile Include="PayPal\CreateOrder.ashx.cs">
+      <DependentUpon>CreateOrder.ashx</DependentUpon>
+    </Compile>
+    <Compile Include="PayPal\PayPalClient.cs" />
     <Compile Include="Private\Business Intelligence.aspx.cs">
       <DependentUpon>Business Intelligence.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>

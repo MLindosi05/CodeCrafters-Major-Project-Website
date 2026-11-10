@@ -244,6 +244,11 @@ a {
             box-shadow: 0 0 0 3px var(--blue-50);
         }
 
+    .search-widget .btn-regal {
+        grid-column: 1 / -1;
+        justify-self: center;
+        width: 200px;
+    }
 @media (max-width:900px) {
     .search-widget {
         grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
@@ -891,3 +896,4 @@ a {
         margin-bottom: .8rem;
         color: var(--text);
     }
+

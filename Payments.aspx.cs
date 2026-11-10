@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Linq;
 using System.Web;
 using System.Web.UI;
@@ -10,6 +11,11 @@ namespace CodeCrafters_Major_Project_Website
 {
     public partial class Payments : System.Web.UI.Page
     {
+        protected string PayPalClientId
+        {
+            get { return ConfigurationManager.AppSettings["PayPal:ClientId"]; }
+        }
+
         protected void Page_Load(object sender, EventArgs e)
         {
             // Gate on the server, not just the client — so someone can't

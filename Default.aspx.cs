@@ -157,4 +157,5 @@ namespace CodeCrafters_Major_Project_Website
             public string ImageUrl { get; set; }
         }
     }
+
 }

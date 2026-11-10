@@ -7,6 +7,7 @@ using System.Web.Routing;
 using System.Web.Security;
 using System.Web.SessionState;
 
+
 namespace CodeCrafters_Major_Project_Website
 {
     public class Global : HttpApplication
@@ -14,6 +15,7 @@ namespace CodeCrafters_Major_Project_Website
         void Application_Start(object sender, EventArgs e)
         {
             // Code that runs on application startup
+            System.Net.ServicePointManager.SecurityProtocol |= System.Net.SecurityProtocolType.Tls12;
             RouteConfig.RegisterRoutes(RouteTable.Routes);
             BundleConfig.RegisterBundles(BundleTable.Bundles);
         }

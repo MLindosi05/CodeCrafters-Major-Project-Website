@@ -10,10 +10,33 @@
             { keys: ["wifi", "wi-fi", "internet"], answer: "Free high-speed Wi-Fi is available throughout the hotel and in all rooms." },
             { keys: ["breakfast", "meal", "restaurant"], answer: "Breakfast is served 06:30–10:00 in our restaurant, and can be added to any booking." },
             { keys: ["pet", "dog", "cat"], answer: "We're a pet-friendly hotel in select rooms — let us know when booking so we can prepare accordingly." },
-            { keys: ["book", "booking", "reserve"], answer: "You can browse rooms and book directly on our Rooms & Rates page — I can take you there now." },
+            { keys: ["book", "booking", "reserve"], answer: "You can browse rooms and book directly on our Rooms & Rates page." },
             { keys: ["price", "rate", "cost"], answer: "Rates vary by room type and season — check the Rooms & Rates page for live pricing, or tell me your dates and I'll point you in the right direction." },
-            { keys: ["contact", "phone", "email", "human", "agent", "person"], answer: "I'll connect you with our reservations team — head to the Contact page and someone will respond shortly." }
+            { keys: ["contact", "phone", "email", "human", "agent", "person"], answer: "Head to the Contact page and someone will respond shortly." },
+            { keys: ["payment"], answer: "Payment is handled after selection of rooms, prior to it you will be directed to login and/or signup. Payment can be done through your paypal account or through providing card details." },
+            { keys: ["minimum stay", "how many nights", "one night"], answer: "Minimum stay requirements may vary depending on the room and booking dates. Check availability on our Rooms & Rates page." },
+            { keys: ["booking confirmation", "confirmation email", "confirmed"], answer: "Once your booking has been successfully completed, you will receive a booking confirmation. You can also check your reservations under My Bookings." },
+            { keys: ["towels", "toiletries", "bedding"], answer: "Fresh towels and bedding are provided for our guests. Please contact Reception if you require additional supplies." },
+            { keys: ["room service", "food delivery"], answer: "For information about room service and food delivery options, please contact Reception." },
+            { keys: ["register", "create account", "sign up"], answer: "You can create an account using the Register page. Once registered, you can log in and manage your reservations." },
+            { keys: ["forgot password", "reset password", "can't log in"], answer: "If you've forgotten your password, visit the Login page and use the available password recovery option." },
+            { keys: ["directions", "how to get there", "address", "location"], answer: "For directions and branch addresses, please visit our About page and select the relevant branch." },
+            { keys: ["late arrival", "arrive late", "midnight"], answer: "If you expect to arrive late, please contact Reception in advance so that arrangements can be made for your arrival." },
+            { keys: ["security", "safe", "valuables"], answer: "Guest safety is important to us. Please contact Reception for information about available security facilities and safe storage." },
+            { keys: ["nearby attractions", "things to do", "activities"], answer: "Our branches are located in convenient areas for exploring nearby attractions. Contact Reception for recommendations around your selected branch." },
+            { keys: ["my bookings", "view bookings", "reservation history"], answer: "Log in to your account and select My Bookings to view your existing reservations." },
+            { keys: ["availability", "available rooms", "vacancy"], answer: "Room availability depends on your selected dates and preferred branch. Visit our Rooms & Rates page to check available rooms." },
+            { keys: ["smoking", "smoke", "non smoking"], answer: "Please contact Reception for information about the hotel's smoking policy and designated smoking areas." },
+            { keys: ["room types", "types of rooms", "room categories"], answer: "We offer different room categories to suit your needs. Visit our Rooms & Rates page to explore available room types and prices." },
+            { keys: ["room facilities", "room amenities", "in the room"], answer: "Our rooms offer comfortable accommodation with amenities such as Wi-Fi and breakfast options. Specific facilities may vary by room type." },
+
+            { keys: ["air conditioning", "aircon", "cooling"], answer: "Room facilities may vary depending on the room category. Please contact Reception to confirm air-conditioning availability for your selected room." },
+            { keys: ["tv", "television", "entertainment"], answer: "Please contact Reception for information about television and entertainment facilities in your selected room." },
+
         ];
+
+     
+
 
         var QUICK_REPLIES = ["Booking a room", "Check-in time", "Cancellation policy", "Talk to a human"];
 
