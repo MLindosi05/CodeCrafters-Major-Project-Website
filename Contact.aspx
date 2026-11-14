@@ -8,7 +8,6 @@
 
     <section class="section reveal" style="padding-top:3.5rem;">
         <h1 class="section-title">Get In Touch</h1>
-        <p class="section-sub">Questions about a booking, group rates, or anything else — we're here.</p>
 
         <div class="form-regal">
             <asp:Literal ID="litFormMsg" runat="server" />
@@ -46,7 +45,6 @@
 
     <section class="section reveal" style="text-align:center;">
         <h2 class="section-title">Prefer to Chat?</h2>
-        <p class="section-sub">Use the concierge chat bubble in the corner for instant answers to common questions.</p>
     </section>
 
 </asp:Content>

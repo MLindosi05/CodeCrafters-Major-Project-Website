@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
@@ -6,6 +6,7 @@ using System.Web.UI;
 using System.Web.UI.WebControls;
 using System.Configuration;
 using System.Data.SqlClient;
+using CodeCrafters_Major_Project_Website.Models;
 
 namespace CodeCrafters_Major_Project_Website
 {
@@ -23,48 +24,19 @@ namespace CodeCrafters_Major_Project_Website
         // Now pulls every available room instead of just the top 3.
         private void BindFeaturedRooms()
         {
-            var rooms = new List<FeaturedRoom>();
-
-            string connStr = ConfigurationManager.ConnectionStrings["DefaultConnection"].ConnectionString;
-
-            // Picks one room per distinct hotel_room_type — the cheapest available
-            // room of each type, so Featured Rooms shows variety, not duplicates.
-            const string sql = @"
-        SELECT Hotel_Room_ID, hotel_room_type, Hotel_Room_Price, Max_Adults, Max_Children
-        FROM (
-            SELECT *,
-                   ROW_NUMBER() OVER (PARTITION BY hotel_room_type ORDER BY Hotel_Room_Price ASC) AS rn
-            FROM Hotel_Room
-            WHERE hotel_room_status = 'Available'
-        ) ranked
-        WHERE rn = 1
-        ORDER BY Hotel_Room_Price DESC";
-
-            using (var conn = new SqlConnection(connStr))
-            using (var cmd = new SqlCommand(sql, conn))
-            {
-                conn.Open();
-                using (var reader = cmd.ExecuteReader())
+            var rooms = new AvailabilityService().GetAvailableRooms(String.Empty, String.Empty, 0, null, null, 0)
+                .GroupBy(room => room.RoomType)
+                .Select(group => group.OrderBy(room => room.PricePerNight).First())
+                .OrderByDescending(room => room.PricePerNight)
+                .Select(room => new FeaturedRoom
                 {
-                    while (reader.Read())
-                    {
-                        string roomType = reader["hotel_room_type"].ToString();
-                        rooms.Add(new FeaturedRoom
-                        {
-                            RoomId = reader["Hotel_Room_ID"].ToString(),
-                            RoomName = roomType,
-                            PricePerNight = Convert.ToDecimal(reader["Hotel_Room_Price"]),
-                            MaxGuests = SafeInt(reader["Max_Adults"]) + SafeInt(reader["Max_Children"]),
-                            ImageUrl = ImageForRoomType(roomType)
-                        });
-                    }
-                }
-            }
-
+                    RoomId = room.RoomId.ToString(), RoomName = room.RoomType,
+                    PricePerNight = room.PricePerNight, MaxGuests = room.MaxGuests,
+                    ImageUrl = ImageForRoomType(room.RoomType)
+                }).ToList();
             rptFeaturedRooms.DataSource = rooms;
             rptFeaturedRooms.DataBind();
         }
-
         // Populates the search widget's Room Type dropdown from whatever
         // distinct room types actually exist in the database right now.
         private void BindRoomTypeDropdown()

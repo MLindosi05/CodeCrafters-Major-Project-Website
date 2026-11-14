@@ -14,7 +14,7 @@ namespace CodeCrafters_Major_Project_Website
     {
         public Task SendAsync(IdentityMessage message)
         {
-            // Plug in your email service here to send an email.
+            BookingSupportStore.EnqueueEmail(message.Destination, message.Subject, message.Body);
             return Task.FromResult(0);
         }
     }

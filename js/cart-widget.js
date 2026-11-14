@@ -5,6 +5,7 @@
 
 var RegalCart = (function () {
     var STORAGE_KEY = "regalCartItems";
+    var STAY_KEY = "regalStaySelection";
 
     function getItems() {
         try {
@@ -21,7 +22,13 @@ var RegalCart = (function () {
         updateTotal();
     }
 
-    function addItem(room) {
+    function addItem(room, stay) {
+        if (!stay || !stay.checkIn || !stay.checkOut || stay.checkOut <= stay.checkIn) {
+            if (window.RegalDialog) RegalDialog.alert("Choose your check-in and check-out dates, then search for available rooms first.", { title: "Choose stay dates" });
+            return;
+        }
+        try { sessionStorage.setItem(STAY_KEY, JSON.stringify(stay)); }
+        catch (e) { if (window.RegalDialog) RegalDialog.alert("Your stay details could not be saved. Please enable session storage and try again.", { title: "Unable to save stay" }); return; }
         var items = getItems();
     
         if (items.some(function (i) { return i.roomId === room.roomId; })) return;

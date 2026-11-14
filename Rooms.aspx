@@ -7,7 +7,6 @@
 
     <section class="section" style="padding-top:3.5rem;">
         <h1 class="section-title">Rooms &amp; Rates</h1>
-        <p class="section-sub">Browse freely — you only need to sign in when you're ready to confirm.</p>
 
         <!-- Filter bar -->
         <div class="search-widget" style="margin-top:0; margin-bottom:3rem;">
@@ -64,13 +63,17 @@
                 <span class="badge-amenity">Sleeps <%# Eval("MaxGuests") %></span>
                 <span class="badge-amenity">Free Wi-Fi</span>
                 <span class="badge-amenity">Breakfast Included</span>
+                <asp:Repeater ID="rptAdditionalAmenities" runat="server" DataSource='<%# Eval("AdditionalAmenities") %>'>
+                    <ItemTemplate><span class="badge-amenity"><%# Container.DataItem %></span></ItemTemplate>
+                </asp:Repeater>
             </div>
             <div class="price">R<%# Eval("PricePerNight") %> / night</div>
             <div style="display:flex; gap:.6rem;">
               <%--  <asp:Button runat="server" Text="Book Now" CssClass="btn-regal"
                     CommandName="Book" CommandArgument='<%# Eval("RoomId") %>' />--%>
-                <button type="button" class="btn-outline"
-                    onclick="RegalCart.add({roomId:'<%# Eval("RoomId") %>', roomName:'<%# Eval("RoomName") %>', branchName:'<%# Eval("BranchName") %>', pricePerNight:'<%# Eval("PricePerNight") %>'})">
+                <button type="button" class="btn-outline room-add-to-cart" disabled="disabled"
+                    data-room-id='<%# Eval("RoomId") %>' data-room-name='<%# System.Web.HttpUtility.HtmlAttributeEncode(Convert.ToString(Eval("RoomName"))) %>'
+                    data-branch-name='<%# System.Web.HttpUtility.HtmlAttributeEncode(Convert.ToString(Eval("BranchName"))) %>' data-price='<%# Eval("PricePerNight") %>'>
                     Add to Cart
                 </button>
             </div>
@@ -104,7 +107,6 @@
 
         <!-- If the user isn't authenticated, prompt inline instead of a hard redirect wall -->
         <asp:Panel ID="pnlLoginPrompt" runat="server" Visible="false" style="background:rgba(212,160,23,.1); padding:1rem; border-radius:8px; margin-bottom:1rem;">
-            <p style="margin:0 0 .8rem;">You'll need an account to confirm this booking — it only takes a minute.</p>
             <a href="~/Account/Login.aspx" runat="server" class="btn-regal">Log In</a>
             <a href="~/Account/Register.aspx" runat="server" class="btn-outline">Create Account</a>
         </asp:Panel>
@@ -121,6 +123,36 @@
 </asp:Content>
 
 <asp:Content ID="ScriptC" ContentPlaceHolderID="ScriptContent" runat="server">
+    <script>
+        (function () {
+            var checkIn = document.getElementById('<%= txtCheckIn.ClientID %>');
+            var checkOut = document.getElementById('<%= txtCheckOut.ClientID %>');
+            var search = document.getElementById('<%= btnFilter.ClientID %>');
+            function validateStay() {
+                var now = new Date();
+                var today = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0') + '-' + String(now.getDate()).padStart(2, '0');
+                var valid = checkIn.value && checkOut.value && checkOut.value > checkIn.value && checkIn.value >= today;
+                document.querySelectorAll('.room-add-to-cart').forEach(function (button) { button.disabled = !valid; });
+            }
+            function changeStay() {
+                validateStay();
+                if (checkIn.value && checkOut.value && checkOut.value > checkIn.value && checkIn.value >= (function () { var d = new Date(); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); })()) search.click();
+            }
+            document.querySelectorAll('.room-add-to-cart').forEach(function (button) {
+                button.addEventListener('click', function () {
+                    RegalCart.add({ roomId: button.getAttribute('data-room-id'), roomName: button.getAttribute('data-room-name'),
+                        branchName: button.getAttribute('data-branch-name'), pricePerNight: button.getAttribute('data-price') },
+                        { checkIn: checkIn.value, checkOut: checkOut.value, guestCount: document.getElementById('<%= ddlGuests.ClientID %>').value });
+                });
+            });
+            checkIn.addEventListener('change', changeStay);
+            checkOut.addEventListener('change', changeStay);
+            document.getElementById('<%= ddlGuests.ClientID %>').addEventListener('change', function () {
+                if (checkIn.value && checkOut.value) search.click();
+            });
+            validateStay();
+        })();
+    </script>
     <script>
         // Show the dimmed backdrop whenever the modal panel is server-rendered visible
         document.addEventListener("DOMContentLoaded", function () {

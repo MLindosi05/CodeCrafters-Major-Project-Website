@@ -1,13 +1,10 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
-using System.Linq;
+using System.Configuration;
+using System.Data.SqlClient;
 using System.Web;
 using System.Web.UI;
 using System.Web.UI.WebControls;
-
-
-using System.Configuration;
-using System.Data.SqlClient;
 using CodeCrafters_Major_Project_Website.Models;
 
 namespace CodeCrafters_Major_Project_Website
@@ -18,9 +15,10 @@ namespace CodeCrafters_Major_Project_Website
         {
             if (!IsPostBack)
             {
-                // Pre-fill from querystring if arriving from the homepage search widget
                 if (Request.QueryString["checkin"] != null) txtCheckIn.Text = Request.QueryString["checkin"];
                 if (Request.QueryString["checkout"] != null) txtCheckOut.Text = Request.QueryString["checkout"];
+                if (Request.QueryString["guests"] != null && ddlGuests.Items.FindByValue(Request.QueryString["guests"]) != null)
+                    ddlGuests.SelectedValue = Request.QueryString["guests"];
                 BindBranches();
                 BindRoomTypes();
                 if (Request.QueryString["branch"] != null && ddlBranch.Items.FindByValue(Request.QueryString["branch"]) != null)
@@ -28,101 +26,81 @@ namespace CodeCrafters_Major_Project_Website
                 if (Request.QueryString["type"] != null && ddlRoomType.Items.FindByValue(Request.QueryString["type"]) != null)
                     ddlRoomType.SelectedValue = Request.QueryString["type"];
 
+                SaveStaySelection();
                 BindRooms(ddlBranch.SelectedValue, ddlRoomType.SelectedValue, 0);
             }
         }
 
-        // Matches your real Hotel_Room table: hotel_room_type holds free-text
-        // like "Standard Room 1 King Bed" / "Suite Room Twin Beds", so the
-        // dropdown filter (Standard/Deluxe/Suite) does a partial LIKE match
-        // rather than an exact equals.
         private void BindRooms(string branchFilter, string roomTypeFilter, decimal maxPrice)
         {
             var rooms = new List<RoomResult>();
-            string connStr = ConfigurationManager.ConnectionStrings["DefaultConnection"].ConnectionString;
-
-            const string sql = @"SELECT hr.Hotel_Room_ID, hr.Branch_ID, b.Branch_Name, hr.hotel_room_number, hr.hotel_room_type,
-                                         hr.Hotel_Room_Price, hr.Max_Adults, hr.Max_Children
-                                  FROM Hotel_Room hr
-                                  INNER JOIN Branch b ON b.Branch_ID = hr.Branch_ID
-                                  WHERE hr.hotel_room_status = 'Available'
-                                    AND (@BranchId = '' OR hr.Branch_ID = @BranchId)
-                                    AND (@RoomType = '' OR hr.hotel_room_type LIKE '%' + @RoomType + '%')
-                                    AND (@MaxPrice = 0 OR Hotel_Room_Price <= @MaxPrice)
-                                  ORDER BY hr.Hotel_Room_Price ASC";
-
-            using (var conn = new SqlConnection(connStr))
-            using (var cmd = new SqlCommand(sql, conn))
+            DateTime checkIn, checkOut;
+            bool hasDateInput = !String.IsNullOrWhiteSpace(txtCheckIn.Text) || !String.IsNullOrWhiteSpace(txtCheckOut.Text);
+            DateTime? dateIn = null, dateOut = null;
+            if (hasDateInput)
             {
-                cmd.Parameters.AddWithValue("@RoomType", roomTypeFilter ?? string.Empty);
-                cmd.Parameters.AddWithValue("@BranchId", branchFilter ?? string.Empty);
-                cmd.Parameters.AddWithValue("@MaxPrice", maxPrice);
-                conn.Open();
-                using (var reader = cmd.ExecuteReader())
+                if (!DateTime.TryParse(txtCheckIn.Text, out checkIn) || !DateTime.TryParse(txtCheckOut.Text, out checkOut))
                 {
-                    while (reader.Read())
-                    {
-                        string roomType = reader["hotel_room_type"].ToString();
-                        int maxAdults = SafeInt(reader["Max_Adults"]);
-                        int maxChildren = SafeInt(reader["Max_Children"]);
-
-                        rooms.Add(new RoomResult
-                        {
-                            RoomId = reader["Hotel_Room_ID"].ToString(),
-                            RoomName = roomType,
-                            RoomNumber = reader["hotel_room_number"].ToString(),
-                            BranchId = reader["Branch_ID"].ToString(),
-                            BranchName = reader["Branch_Name"].ToString(),
-                            Blurb = BlurbForRoomType(roomType),
-                            MaxGuests = (maxAdults + maxChildren) > 0 ? (maxAdults + maxChildren).ToString() : "2",
-                            PricePerNight = Convert.ToDecimal(reader["Hotel_Room_Price"]),
-                            ImageUrl = Default.ImageForRoomType(roomType)
-                        });
-                    }
+                    rptRooms.DataSource = rooms; rptRooms.DataBind(); pnlNoResults.Visible = true; return;
                 }
+                dateIn = checkIn.Date; dateOut = checkOut.Date;
             }
-
-            rptRooms.DataSource = rooms;
-            rptRooms.DataBind();
-            pnlNoResults.Visible = rooms.Count == 0;
+            int guests;
+            Int32.TryParse(ddlGuests.SelectedValue, out guests);
+            List<AvailableRoom> availableRooms;
+            try { availableRooms = new AvailabilityService().GetAvailableRooms(branchFilter, roomTypeFilter, maxPrice, dateIn, dateOut, guests); }
+            catch (InvalidOperationException)
+            {
+                rptRooms.DataSource = rooms; rptRooms.DataBind(); pnlNoResults.Visible = true; return;
+            }
+            foreach (var room in availableRooms)
+            {
+                int maxGuests = room.MaxGuests > 0 ? room.MaxGuests : 2;
+                RoomTypePresentation presentation = RoomTypePresentation.For(room.RoomType, maxGuests.ToString());
+                rooms.Add(new RoomResult
+                {
+                    RoomId = room.RoomId.ToString(), RoomName = room.RoomType,
+                    RoomNumber = room.RoomNumber.ToString(), BranchId = room.BranchId, BranchName = room.BranchName,
+                    Blurb = presentation.Description, MaxGuests = maxGuests.ToString(),
+                    AdditionalAmenities = presentation.AdditionalAmenities, PricePerNight = room.PricePerNight,
+                    ImageUrl = Default.ImageForRoomType(room.RoomType)
+                });
+            }
+            rptRooms.DataSource = rooms; rptRooms.DataBind(); pnlNoResults.Visible = rooms.Count == 0;
         }
-
-        private int SafeInt(object dbValue)
-        {
-            return dbValue == DBNull.Value ? 0 : Convert.ToInt32(dbValue);
-        }
-
-        // hotel_room_type has no separate description field, so we generate
-        // a short one from the type text for the card copy.
-        private string BlurbForRoomType(string roomType)
-        {
-            string type = (roomType ?? string.Empty).ToLower();
-            if (type.Contains("standard"))
-                return "Spacious suite with extra living space, ideal for longer stays.";
-            if (type.Contains("Double"))
-                return "Spacious standard room with extra living space, ideal for trips with friends .";
-            if (type.Contains("twin"))
-                return "Comfortable twin-bed room, perfect for friends or family sharing.";
-            if (type.Contains("King"))
-                return "Comfortable ome bed room, perfect for a leisure experience.";
-            if (type.Contains("Deluxe"))
-                return "Superb room designed for a luxurious stay and experiene.";
-            if (type.Contains("Executive"))
-                return "Executive experience for businessmen and woman who require a few nights of a stay in class";
-            return "Well-appointed room with everything you need for a restful stay.";
-
-
-        }
-
         protected void btnFilter_Click(object sender, EventArgs e)
         {
             decimal maxPrice = 0;
             decimal.TryParse(ddlMaxPrice.SelectedValue, out maxPrice);
+            SaveStaySelection();
             BindRooms(ddlBranch.SelectedValue, ddlRoomType.SelectedValue, maxPrice);
-
-            // Make sure a previously-opened booking modal doesn't carry over
-            // into the new search results via ViewState.
             pnlBookingModal.Style["display"] = "none";
+        }
+
+        private static int ReadMaxStayNights()
+        {
+            int max;
+            return Int32.TryParse(ConfigurationManager.AppSettings["Booking:MaxStayNights"], out max) && max > 0 ? max : 30;
+        }
+
+        private void SaveStaySelection()
+        {
+            DateTime checkIn, checkOut;
+            int guestCount;
+            if (DateTime.TryParse(txtCheckIn.Text, out checkIn) && DateTime.TryParse(txtCheckOut.Text, out checkOut) &&
+                checkIn.Date >= DateTime.Today && checkOut.Date > checkIn.Date &&
+                (checkOut.Date - checkIn.Date).TotalDays <= ReadMaxStayNights())
+            {
+                Session["Booking.CheckIn"] = checkIn.Date;
+                Session["Booking.CheckOut"] = checkOut.Date;
+                Session["Booking.GuestCount"] = Int32.TryParse(ddlGuests.SelectedValue, out guestCount) ? guestCount : 1;
+            }
+            else
+            {
+                Session.Remove("Booking.CheckIn");
+                Session.Remove("Booking.CheckOut");
+                Session.Remove("Booking.GuestCount");
+            }
         }
 
         private void BindBranches()
@@ -143,12 +121,10 @@ namespace CodeCrafters_Major_Project_Website
             }
         }
 
-        // Populates Room Type with every distinct type currently in Hotel_Room.
         private void BindRoomTypes()
         {
             ddlRoomType.Items.Clear();
             ddlRoomType.Items.Add(new ListItem("Any", ""));
-
             using (var conn = new SqlConnection(ConfigurationManager.ConnectionStrings["DefaultConnection"].ConnectionString))
             using (var cmd = new SqlCommand("SELECT DISTINCT hotel_room_type FROM Hotel_Room ORDER BY hotel_room_type", conn))
             {
@@ -173,11 +149,8 @@ namespace CodeCrafters_Major_Project_Website
             lblSelectedRoom.Text = "Room #" + roomId;
             txtModalCheckIn.Text = txtCheckIn.Text;
             txtModalCheckOut.Text = txtCheckOut.Text;
-
-            // Gate at the point of commitment, not before — browsing stays public.
             pnlLoginPrompt.Visible = !User.Identity.IsAuthenticated;
             btnConfirmBooking.Visible = User.Identity.IsAuthenticated;
-
             pnlBookingModal.Style["display"] = "block";
         }
 
@@ -220,8 +193,45 @@ namespace CodeCrafters_Major_Project_Website
             public string BranchName { get; set; }
             public string Blurb { get; set; }
             public string MaxGuests { get; set; }
+            public string[] AdditionalAmenities { get; set; }
             public decimal PricePerNight { get; set; }
             public string ImageUrl { get; set; }
+        }
+    }
+}
+
+namespace CodeCrafters_Major_Project_Website.Models
+{
+    public sealed class RoomTypePresentation
+    {
+        private RoomTypePresentation(string description, string[] additionalAmenities)
+        {
+            Description = description;
+            AdditionalAmenities = additionalAmenities;
+        }
+
+        public string Description { get; private set; }
+        public string[] AdditionalAmenities { get; private set; }
+
+        public static RoomTypePresentation For(string roomType, string maxGuests)
+        {
+            string type = (roomType ?? string.Empty).Trim().ToLowerInvariant();
+            string capacity = string.IsNullOrWhiteSpace(maxGuests) ? "2" : maxGuests;
+
+            if (type.Contains("suite") && type.Contains("twin"))
+                return new RoomTypePresentation("A suite with a separate living area and twin beds, accommodating up to " + capacity + " guests.", new[] { "Separate Lounge Area", "Mini Bar" });
+            if (type.Contains("suite") && type.Contains("king"))
+                return new RoomTypePresentation("A suite with a separate living area and one king bed, accommodating up to " + capacity + " guests.", new[] { "Separate Lounge Area", "Mini Bar" });
+            if (type.Contains("executive"))
+                return new RoomTypePresentation("An executive-category room with one king bed, suited to business or leisure stays for up to " + capacity + " guests.", new[] { "Work Desk", "Tea & Coffee Station" });
+            if (type.Contains("deluxe"))
+                return new RoomTypePresentation("A deluxe room with one king bed, offering a comfortable stay for up to " + capacity + " guests.", new[] { "Mini Bar", "In-room Safe" });
+            if (type.Contains("standard") && (type.Contains("double") || type.Contains("2 double")))
+                return new RoomTypePresentation("A practical standard room with two double beds, suitable for up to " + capacity + " guests.", new[] { "Air Conditioning", "Flat-screen TV" });
+            if (type.Contains("standard") && type.Contains("king"))
+                return new RoomTypePresentation("A comfortable, practical standard room with one king bed for up to " + capacity + " guests.", new[] { "Air Conditioning", "En-suite Bathroom" });
+
+            return new RoomTypePresentation("A comfortable room for up to " + capacity + " guests. The room name lists its bed configuration.", new[] { "Air Conditioning", "Flat-screen TV" });
         }
     }
 }

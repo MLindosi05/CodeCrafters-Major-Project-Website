@@ -306,6 +306,8 @@ a {
 }
 
 .room-card {
+    display: flex;
+    flex-direction: column;
     background: var(--bg-card);
     border-radius: var(--radius-lg);
     overflow: hidden;
@@ -336,6 +338,9 @@ a {
     }
 
     .room-card .body {
+        display: flex;
+        flex-direction: column;
+        flex: 1;
         padding: 1.4rem;
     }
 
@@ -349,6 +354,7 @@ a {
         font-weight: 700;
         font-size: 1.25rem;
         margin: .6rem 0;
+        margin-top: auto;
     }
 
         .room-card .price .was {
@@ -715,6 +721,18 @@ a {
     background: rgba(26,26,46,.55);
     z-index: 1400;
 }
+.regal-dialog-backdrop { position:fixed; inset:0; z-index:5000; display:flex; align-items:center; justify-content:center; padding:1rem; background:rgba(15,35,65,.62); }
+.regal-dialog-backdrop[hidden] { display:none; }
+.regal-dialog { width:min(520px, 100%); padding:1.5rem; border:1px solid var(--border); border-radius:18px; background:#fff; color:var(--text); box-shadow:0 24px 70px rgba(0,0,0,.24); }
+.regal-dialog h2 { margin-top:0; color:var(--blue-900); }
+.regal-dialog p { white-space:pre-line; line-height:1.6; }
+.regal-dialog-actions { display:flex; justify-content:flex-end; gap:.75rem; margin-top:1.25rem; }
+.regal-dialog-actions button:disabled { opacity:.55; cursor:wait; }
+.otp-help { margin-top:1rem; color:var(--text-muted); font-size:.9rem; }
+.booking-policy-note { white-space:normal; }
+.booking-help { flex:1 0 100%; margin:0; color:var(--text-muted); font-size:.9rem; line-height:1.55; }
+.booking-date-editor input { min-height:2.6rem; padding:.45rem .65rem; border:1px solid var(--border); border-radius:8px; }
+@media (max-width:640px) { .regal-dialog-actions { flex-direction:column-reverse; } .regal-dialog-actions button { width:100%; } }
 .room-card {
     overflow: hidden; /* keeps the image corners rounded with the card */
 }
@@ -896,4 +914,23 @@ a {
         margin-bottom: .8rem;
         color: var(--text);
     }
+
+.booking-tabs { display:flex; flex-wrap:wrap; gap:.65rem; margin:1.5rem 0; }
+.booking-tabs a { padding:.55rem .9rem; border:1px solid var(--border); border-radius:999px; color:var(--text); text-decoration:none; }
+.booking-tabs a:hover { background:var(--blue-50); }
+.booking-summary-card { background:#fff; border:1px solid var(--border); border-radius:var(--radius-lg); box-shadow:var(--shadow-sm); padding:1.4rem; margin:1rem 0; }
+.booking-summary-card h2 { margin:.1rem 0; font-size:1.2rem; }
+.booking-summary-card h3 { margin:1rem 0 .35rem; font-size:1rem; }
+.booking-summary-header { display:flex; justify-content:space-between; gap:1rem; padding-bottom:.8rem; border-bottom:1px solid var(--border); }
+.booking-summary-header small { color:var(--text-muted); }
+.booking-room-list { margin:.35rem 0; padding-left:1.2rem; }
+.booking-summary-total { font-size:1.1rem; }
+.booking-policy-note { margin:.8rem 0; padding:.75rem; background:rgba(212,160,23,.1); border-radius:8px; }
+.booking-actions { display:flex; flex-wrap:wrap; gap:.75rem; align-items:end; margin-top:1rem; }
+.booking-date-editor { display:flex; flex-wrap:wrap; gap:.6rem; align-items:end; }
+.booking-date-editor label { display:grid; gap:.25rem; }
+@media (max-width:600px) {
+    .booking-summary-header { flex-direction:column; }
+    .booking-summary-card { padding:1rem; }
+}
 
