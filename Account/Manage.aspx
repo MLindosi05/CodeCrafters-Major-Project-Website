@@ -23,53 +23,10 @@
                         <asp:HyperLink NavigateUrl="/Account/ManagePassword" Text="[Change]" Visible="false" ID="ChangePassword" runat="server" />
                         <asp:HyperLink NavigateUrl="/Account/ManagePassword" Text="[Create]" Visible="false" ID="CreatePassword" runat="server" />
                     </dd>
-                   <%-- <dt>External Logins:</dt>
-                    <dd><%: LoginsCount %>
-                        <asp:HyperLink NavigateUrl="/Account/ManageLogins" Text="[Manage]" runat="server" />
-                    </dd>
-                    <%--
-                        Phone Numbers can used as a second factor of verification in a two-factor authentication system.
-                        See <a href="https://go.microsoft.com/fwlink/?LinkId=403804">this article</a>
-                        for details on setting up this ASP.NET application to support two-factor authentication using SMS.
-                        Uncomment the following blocks after you have set up two-factor authentication
-                    --%>
-                    <%--
-                    <dt>Phone Number:</dt>
-                    <% if (HasPhoneNumber)
-                        { %>
-                    <dd>
-                        <asp:HyperLink NavigateUrl="/Account/AddPhoneNumber" runat="server" Text="[Add]" />
-                    </dd>
-                    <% }
-                        else
-                        { %>
-                    <dd>
-                        <asp:Label Text="" ID="PhoneNumber" runat="server" />
-                        <asp:HyperLink NavigateUrl="/Account/AddPhoneNumber" runat="server" Text="[Change]" /> &nbsp;|&nbsp;
-                        <asp:LinkButton Text="[Remove]" OnClick="RemovePhone_Click" runat="server" />
-                    </dd>
-                    <% } %>
-                    --%>
                     <dt>Two-Factor Authentication:</dt>
                     <dd>
                         <p>
-                          <%--  There are no two-factor authentication providers configured. See <a href="https://go.microsoft.com/fwlink/?LinkId=403804">this article</a>
-                            for details on setting up this ASP.NET application to support two-factor authentication.--%>
                         </p>
-                        <% if (TwoFactorEnabled)
-                            { %> 
-                        <%--
-                        Enabled
-                        <asp:LinkButton Text="[Disable]" runat="server" CommandArgument="false" OnClick="TwoFactorDisable_Click" />
-                        --%>
-                        <% }
-                            else
-                            { %> 
-                        <%--
-                        Disabled
-                        <asp:LinkButton Text="[Enable]" CommandArgument="true" OnClick="TwoFactorEnable_Click" runat="server" />
-                        --%>
-                        <% } %>
                     </dd>
                 </dl>
 
@@ -94,11 +51,13 @@
                     <label for="txtProfileFirstName">First Name</label>
                     <asp:TextBox ID="txtProfileFirstName" runat="server" CssClass="regal-input" MaxLength="50" />
                     <asp:RequiredFieldValidator ID="rfvProfileFirstName" runat="server" ControlToValidate="txtProfileFirstName" ValidationGroup="Profile" CssClass="field-error" ErrorMessage="First name is required." Display="Dynamic" />
+                    <asp:RegularExpressionValidator ID="revProfileFirstName" runat="server" ControlToValidate="txtProfileFirstName" ValidationGroup="Profile" ValidationExpression="^[A-Za-zÀ-ÿ\s'-]+$" CssClass="field-error" ErrorMessage="First name can only contain letters, spaces, hyphens, and apostrophes." Display="Dynamic" />
                 </div>
                 <div class="field">
                     <label for="txtProfileLastName">Last Name</label>
                     <asp:TextBox ID="txtProfileLastName" runat="server" CssClass="regal-input" MaxLength="50" />
                     <asp:RequiredFieldValidator ID="rfvProfileLastName" runat="server" ControlToValidate="txtProfileLastName" ValidationGroup="Profile" CssClass="field-error" ErrorMessage="Surname is required." Display="Dynamic" />
+                    <asp:RegularExpressionValidator ID="revProfileLastName" runat="server" ControlToValidate="txtProfileLastName" ValidationGroup="Profile" ValidationExpression="^[A-Za-zÀ-ÿ\s'-]+$" CssClass="field-error" ErrorMessage="Last name (surname) cannot contain numbers or invalid symbols." Display="Dynamic" />
                 </div>
                 <div class="field">
                     <label for="txtProfileEmail">Email</label>

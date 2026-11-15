@@ -20,10 +20,14 @@
         <nav class="navbar-regal" id="regalNavbar">
             <a class="brand" href="~/Default.aspx" runat="server">The Regal Inn Hotel</a>
             <ul class="nav-links">
-                <li><a href="~/Default.aspx" runat="server">Home</a></li>
-                <li><a href="~/About.aspx" runat="server">About</a></li>
-                <li><a href="~/Rooms.aspx" runat="server">Rooms</a></li>
-                <li><a href="~/Contact.aspx" runat="server">Contact</a></li>
+                <asp:LoginView runat="server">
+                    <AnonymousTemplate>
+                        <li><a href="~/Default.aspx" runat="server">Home</a></li>
+                        <li><a href="~/About.aspx" runat="server">About</a></li>
+                        <li><a href="~/Rooms.aspx" runat="server">Rooms</a></li>
+                        <li><a href="~/Contact.aspx" runat="server">Contact</a></li>
+                    </AnonymousTemplate>
+                </asp:LoginView>
 
                 <asp:LoginView runat="server">
                     <AnonymousTemplate>

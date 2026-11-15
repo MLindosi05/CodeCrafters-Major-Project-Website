@@ -25,7 +25,7 @@
                 <span class="tool-number">03</span>
                 <h2>Business reports</h2>
                 <p>Open the hotel’s Power BI report for operational and business insights.</p>
-                <asp:HyperLink ID="PowerBiLink" runat="server" Target="_blank" rel="noopener" CssClass="btn-outline-regal" Text="Open Power BI report" Visible="false" />
+                <asp:HyperLink ID="PowerBiLink" runat="server" Target="_blank" rel="noopener" CssClass="btn-outline-regal" Text="Open Power BI report" />
                 <asp:Label ID="PowerBiSetupNote" runat="server" CssClass="report-note" Text="Power BI report link is not configured." Visible="false" />
             </article>
         </div>

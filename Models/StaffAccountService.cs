@@ -13,7 +13,7 @@ namespace CodeCrafters_Major_Project_Website.Models
     /// </summary>
     public sealed class StaffAccountService
     {
-        private readonly string connectionString = ConfigurationManager.ConnectionStrings["DefaultConnection"].ConnectionString;
+        private readonly string connectionString = ConfigurationManager.ConnectionStrings["ConnString"].ConnectionString;
 
         public sealed class StaffRecord
         {

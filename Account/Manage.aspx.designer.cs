@@ -51,6 +51,24 @@ namespace CodeCrafters_Major_Project_Website.Account
         protected global::System.Web.UI.WebControls.PlaceHolder profileSuccessMessage;
 
         /// <summary>
+        /// ProfileErrorMessage control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Literal ProfileErrorMessage;
+
+        /// <summary>
+        /// ProfileValidationSummary control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.ValidationSummary ProfileValidationSummary;
+
+        /// <summary>
         /// hdnOriginalEmail control.
         /// </summary>
         /// <remarks>
@@ -58,20 +76,6 @@ namespace CodeCrafters_Major_Project_Website.Account
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.HiddenField hdnOriginalEmail;
-
-        protected global::System.Web.UI.WebControls.Literal ProfileErrorMessage;
-        protected global::System.Web.UI.WebControls.ValidationSummary ProfileValidationSummary;
-        protected global::System.Web.UI.WebControls.RequiredFieldValidator rfvProfileUsername;
-        protected global::System.Web.UI.WebControls.RequiredFieldValidator rfvProfileFirstName;
-        protected global::System.Web.UI.WebControls.RequiredFieldValidator rfvProfileLastName;
-        protected global::System.Web.UI.WebControls.RequiredFieldValidator rfvProfileEmail;
-        protected global::System.Web.UI.WebControls.RegularExpressionValidator revProfileEmail;
-        protected global::System.Web.UI.WebControls.RequiredFieldValidator rfvProfilePhone;
-        protected global::System.Web.UI.WebControls.RegularExpressionValidator revProfilePhone;
-        protected global::System.Web.UI.WebControls.Label lblStaffAccountHint;
-        protected global::System.Web.UI.WebControls.PlaceHolder clientAddressSection;
-        protected global::System.Web.UI.WebControls.PlaceHolder staffStatusSection;
-        protected global::System.Web.UI.WebControls.DropDownList ddlProfileStatus;
 
         /// <summary>
         /// txtProfileUsername control.
@@ -83,6 +87,15 @@ namespace CodeCrafters_Major_Project_Website.Account
         protected global::System.Web.UI.WebControls.TextBox txtProfileUsername;
 
         /// <summary>
+        /// rfvProfileUsername control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.RequiredFieldValidator rfvProfileUsername;
+
+        /// <summary>
         /// txtProfileFirstName control.
         /// </summary>
         /// <remarks>
@@ -90,6 +103,24 @@ namespace CodeCrafters_Major_Project_Website.Account
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.TextBox txtProfileFirstName;
+
+        /// <summary>
+        /// rfvProfileFirstName control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.RequiredFieldValidator rfvProfileFirstName;
+
+        /// <summary>
+        /// revProfileFirstName control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.RegularExpressionValidator revProfileFirstName;
 
         /// <summary>
         /// txtProfileLastName control.
@@ -101,6 +132,24 @@ namespace CodeCrafters_Major_Project_Website.Account
         protected global::System.Web.UI.WebControls.TextBox txtProfileLastName;
 
         /// <summary>
+        /// rfvProfileLastName control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.RequiredFieldValidator rfvProfileLastName;
+
+        /// <summary>
+        /// revProfileLastName control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.RegularExpressionValidator revProfileLastName;
+
+        /// <summary>
         /// txtProfileEmail control.
         /// </summary>
         /// <remarks>
@@ -108,6 +157,33 @@ namespace CodeCrafters_Major_Project_Website.Account
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.TextBox txtProfileEmail;
+
+        /// <summary>
+        /// rfvProfileEmail control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.RequiredFieldValidator rfvProfileEmail;
+
+        /// <summary>
+        /// revProfileEmail control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.RegularExpressionValidator revProfileEmail;
+
+        /// <summary>
+        /// lblStaffAccountHint control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Label lblStaffAccountHint;
 
         /// <summary>
         /// txtProfilePhone control.
@@ -119,6 +195,33 @@ namespace CodeCrafters_Major_Project_Website.Account
         protected global::System.Web.UI.WebControls.TextBox txtProfilePhone;
 
         /// <summary>
+        /// rfvProfilePhone control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.RequiredFieldValidator rfvProfilePhone;
+
+        /// <summary>
+        /// revProfilePhone control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.RegularExpressionValidator revProfilePhone;
+
+        /// <summary>
+        /// clientAddressSection control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.PlaceHolder clientAddressSection;
+
+        /// <summary>
         /// txtProfileAddress control.
         /// </summary>
         /// <remarks>
@@ -126,6 +229,24 @@ namespace CodeCrafters_Major_Project_Website.Account
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.TextBox txtProfileAddress;
+
+        /// <summary>
+        /// staffStatusSection control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.PlaceHolder staffStatusSection;
+
+        /// <summary>
+        /// ddlProfileStatus control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.DropDownList ddlProfileStatus;
 
         /// <summary>
         /// btnSaveProfile control.

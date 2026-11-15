@@ -30,22 +30,298 @@
 </section>
 <script src="https://www.paypal.com/sdk/js?client-id=<%= PayPalClientId %>&currency=USD"></script>
 <script>
-(function(){
-  var endpoint='<%= ResolveUrl("~/PayPal/BookingChange.ashx") %>',csrf=document.getElementById('changeCsrf').value,mode=document.getElementById('changeMode'),
-      message=document.getElementById('changeMessage'),quoteBox=document.getElementById('quoteBox'),apply=document.getElementById('applyButton'),paypalBox=document.getElementById('changePayPal'),currentQuote=null;
-  function post(action,data){return fetch(endpoint+'?action='+action,{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/json'},body:JSON.stringify(Object.assign(data,{csrfToken:csrf}))}).then(function(r){return r.json().then(function(j){if(!r.ok)throw Error(j.error||'Request failed');return j;});});}
-  function req(){return {bookingId:document.getElementById('bookingId').value,mode:mode.value,checkIn:document.getElementById('changeCheckIn').value,checkOut:document.getElementById('changeCheckOut').value,sourceRoomId:document.getElementById('ddlSourceRoom').value,targetRoomId:document.getElementById('targetRoom').value,targetBranchId:document.getElementById('ddlBranch').value};}
-  function showError(e){message.textContent=e.message;message.className='form-msg error';message.style.display='block';}
-  function confirmChange(){return RegalDialog.confirm('Are you sure you wish to make this booking change?\nBooking #'+req().bookingId+'\nDates: '+req().checkIn+' to '+req().checkOut+'\nNew branch: '+(currentQuote?currentQuote.branch:'')+'\nNew total: R'+(currentQuote?Number(currentQuote.newTotal).toFixed(2):'0.00'),{title:'Confirm booking change',okText:'Confirm change'});}
-  function loadOptions(){currentQuote=null;apply.style.display='none';paypalBox.innerHTML='';quoteBox.style.display='none';var roomFields=document.getElementById('roomFields'),branchField=document.getElementById('branchField'),targetField=document.getElementById('targetRoomField');
-    roomFields.style.display=mode.value==='Dates'?'none':'block';document.getElementById('dateFields').style.display=mode.value==='Dates'?'block':'none';branchField.style.display=mode.value==='Branch'?'block':'none';targetField.style.display=mode.value==='Upgrade'?'block':'none';
-    if(mode.value!=='Upgrade')return;
-    post('options',req()).then(function(result){var target=document.getElementById('targetRoom');target.innerHTML='<option value="">Select a room</option>';result.options.forEach(function(o){var opt=document.createElement('option');opt.value=o.roomId;opt.textContent=(mode.value==='Branch'?o.type+' · ':'')+'Room '+o.roomNumber+' — R'+Number(o.rate).toFixed(2)+'/night';target.appendChild(opt);});}).catch(showError);
-  }
-  mode.addEventListener('change',loadOptions);document.getElementById('ddlSourceRoom').addEventListener('change',loadOptions);document.getElementById('ddlBranch').addEventListener('change',loadOptions);document.getElementById('targetRoom').addEventListener('change',function(){currentQuote=null;apply.style.display='none';quoteBox.style.display='none';paypalBox.innerHTML='';});document.getElementById('changeCheckIn').addEventListener('change',function(){currentQuote=null;apply.style.display='none';quoteBox.style.display='none';paypalBox.innerHTML='';});document.getElementById('changeCheckOut').addEventListener('change',function(){currentQuote=null;apply.style.display='none';quoteBox.style.display='none';paypalBox.innerHTML='';});
-  document.getElementById('quoteButton').addEventListener('click',function(){post('quote',req()).then(function(q){currentQuote=q;var lines=q.rooms.map(function(r){return 'Room '+r.roomNumber+' · '+r.type+' — R'+Number(r.rate).toFixed(2)+'/night';}).join('\n');quoteBox.textContent='New branch: '+q.branch+'\nNew total: R'+Number(q.newTotal).toFixed(2)+'\nDifference: '+(q.difference>=0?'+':'−')+'R'+Math.abs(Number(q.difference)).toFixed(2)+'\n'+lines;quoteBox.style.whiteSpace='pre-line';quoteBox.style.display='block';message.style.display='none';if(q.difference>0){apply.style.display='none';paypalBox.innerHTML='';paypal.Buttons({createOrder:function(){return confirmChange().then(function(yes){if(!yes)throw Error('Payment cancelled.');var data=req();data.expectedNewTotal=currentQuote.newTotal;return post('createOrder',data).then(function(r){return r.id;});});},onApprove:function(d){return post('capture',{orderID:d.orderID}).then(function(r){message.textContent=r.message;message.className='form-msg success';message.style.display='block';RegalDialog.alert(r.message,{title:'Booking updated'}).then(function(){location.href='MyBookings.aspx';});}).catch(showError);}}).render('#changePayPal');}else{paypalBox.innerHTML='';apply.style.display='inline-block';}}).catch(showError);});
-  apply.addEventListener('click',function(){confirmChange().then(function(yes){if(!yes)return;apply.disabled=true;var data=req();data.expectedNewTotal=currentQuote.newTotal;post('apply',data).then(function(r){message.textContent=r.message;message.className='form-msg success';message.style.display='block';RegalDialog.alert(r.message,{title:'Booking updated'}).then(function(){location.href='MyBookings.aspx';});}).catch(function(e){showError(e);apply.disabled=false;});});});
-  loadOptions();
-})();
+    (function () {
+        var endpoint = '<%= ResolveUrl("~/PayPal/BookingChange.ashx") %>';
+    var csrf = document.getElementById('changeCsrf').value;
+    var mode = document.getElementById('changeMode');
+    var message = document.getElementById('changeMessage');
+    var quoteBox = document.getElementById('quoteBox');
+    var quoteButton = document.getElementById('quoteButton');
+    var applyButton = document.getElementById('applyButton');
+    var paypalBox = document.getElementById('changePayPal');
+    var currentQuote = null;
+
+    function requestData() {
+        return {
+            bookingId: document.getElementById('bookingId').value,
+            mode: mode.value,
+            checkIn: document.getElementById('changeCheckIn').value,
+            checkOut: document.getElementById('changeCheckOut').value,
+            sourceRoomId: document.getElementById('ddlSourceRoom').value,
+            targetRoomId: document.getElementById('targetRoom').value,
+            targetBranchId: document.getElementById('ddlBranch').value
+        };
+    }
+
+    function showMessage(text, isError) {
+        message.textContent = text;
+        message.className = isError ? 'form-msg error' : 'form-msg success';
+        message.style.display = 'block';
+    }
+
+    function clearQuote() {
+        currentQuote = null;
+        quoteBox.style.display = 'none';
+        applyButton.style.display = 'none';
+        paypalBox.innerHTML = '';
+    }
+
+    function validate(needTarget) {
+        var d = requestData();
+
+        if (!d.bookingId) return 'Booking details are missing. Return to My Bookings and try again.';
+
+        if (d.mode === 'Dates') {
+            if (!d.checkIn || !d.checkOut) return 'Choose both check-in and check-out dates.';
+            if (d.checkOut <= d.checkIn) return 'Check-out must be after check-in.';
+        }
+
+        if (d.mode === 'Upgrade') {
+            if (!d.sourceRoomId) return 'Choose which booked room you want to upgrade.';
+            if (needTarget && !d.targetRoomId) return 'Choose an available upgrade room.';
+        }
+
+        if (d.mode === 'Branch' && !d.targetBranchId)
+            return 'Choose the branch you want to move the booking to.';
+
+        return '';
+    }
+
+    function post(action, data) {
+        var controller = new AbortController();
+        var timeout = setTimeout(function () { controller.abort(); }, 45000);
+
+        return fetch(endpoint + '?action=' + encodeURIComponent(action), {
+            method: 'POST',
+            credentials: 'same-origin',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(Object.assign({}, data, { csrfToken: csrf })),
+            signal: controller.signal
+        }).then(function (response) {
+            return response.text().then(function (text) {
+                var result;
+                try {
+                    result = JSON.parse(text);
+                } catch (_) {
+                    throw new Error('The server returned an unreadable response. Refresh the page and try again.');
+                }
+                if (!response.ok) throw new Error(result.error || 'The request could not be completed.');
+                return result;
+            });
+        }).catch(function (error) {
+            if (error.name === 'AbortError')
+                throw new Error('The request timed out. Check your connection and try again.');
+            throw error;
+        }).finally(function () {
+            clearTimeout(timeout);
+        });
+    }
+
+    function confirmChange() {
+        var d = requestData();
+        var summary =
+            'Booking #' + d.bookingId +
+            '\nDates: ' + d.checkIn + ' to ' + d.checkOut +
+            '\nBranch: ' + (currentQuote ? currentQuote.branch : '') +
+            '\nNew total: R' +
+            (currentQuote ? Number(currentQuote.newTotal).toFixed(2) : '0.00');
+
+        return RegalDialog.confirm(
+            'Are you sure you wish to make this booking change?\n' + summary,
+            { title: 'Confirm booking change', okText: 'Continue' }
+        );
+    }
+
+    function showQuote(q) {
+        currentQuote = q;
+
+        var rooms = (q.rooms || []).map(function (room) {
+            return 'Room ' + room.roomNumber + ' · ' + room.type +
+                ' — R' + Number(room.rate).toFixed(2) + '/night';
+        }).join('\n');
+
+        quoteBox.textContent =
+            'New branch: ' + q.branch +
+            '\nNew total: R' + Number(q.newTotal).toFixed(2) +
+            '\nDifference: ' + (q.difference >= 0 ? '+' : '−') +
+            'R' + Math.abs(Number(q.difference)).toFixed(2) +
+            (rooms ? '\n' + rooms : '');
+
+        quoteBox.style.whiteSpace = 'pre-line';
+        quoteBox.style.display = 'block';
+        message.style.display = 'none';
+
+        if (Number(q.difference) > 0) {
+            applyButton.style.display = 'none';
+
+            if (!window.paypal || !window.paypal.Buttons) {
+                showMessage('PayPal did not load. Refresh the page and try again.', true);
+                return;
+            }
+
+            paypalBox.innerHTML = '';
+
+            paypal.Buttons({
+                onClick: function (data, actions) {
+                    var error = validate(true);
+                    if (error) {
+                        showMessage(error, true);
+                        return actions.reject();
+                    }
+
+                    return confirmChange().then(function (confirmed) {
+                        if (!confirmed) {
+                            showMessage('Payment cancelled. No booking change was made.', false);
+                            return actions.reject();
+                        }
+                        return actions.resolve();
+                    });
+                },
+
+                createOrder: function () {
+                    var d = requestData();
+                    d.expectedNewTotal = currentQuote.newTotal;
+
+                    return post('createOrder', d).then(function (result) {
+                        if (!result.id) throw new Error('PayPal did not return an order number.');
+                        return result.id;
+                    });
+                },
+
+                onApprove: function (data) {
+                    showMessage('Payment approved by PayPal. Updating your booking…', false);
+
+                    return post('capture', { orderID: data.orderID }).then(function (result) {
+                        showMessage(result.message || 'Your booking was updated.', false);
+                        return RegalDialog.alert(result.message || 'Your booking was updated.', {
+                            title: 'Booking updated'
+                        }).then(function () {
+                            window.location.href = 'MyBookings.aspx';
+                        });
+                    }).catch(function (error) {
+                        showMessage(error.message, true);
+                    });
+                },
+
+                onCancel: function () {
+                    showMessage('PayPal payment was cancelled. No booking change was made.', false);
+                },
+
+                onError: function (error) {
+                    showMessage(
+                        error && error.message
+                            ? 'PayPal could not complete the payment: ' + error.message
+                            : 'PayPal could not complete the payment. Please try again.',
+                        true
+                    );
+                }
+            }).render('#changePayPal').catch(function (error) {
+                showMessage('PayPal could not load its payment button. Please refresh and try again.', true);
+            });
+        } else {
+            paypalBox.innerHTML = '';
+            applyButton.style.display = 'inline-block';
+        }
+    }
+
+    function loadOptions() {
+        clearQuote();
+
+        var isUpgrade = mode.value === 'Upgrade';
+        document.getElementById('roomFields').style.display = mode.value === 'Dates' ? 'none' : 'block';
+        document.getElementById('dateFields').style.display = mode.value === 'Dates' ? 'block' : 'none';
+        document.getElementById('branchField').style.display = mode.value === 'Branch' ? 'block' : 'none';
+        document.getElementById('targetRoomField').style.display = isUpgrade ? 'block' : 'none';
+
+        if (!isUpgrade) return;
+
+        var error = validate(false);
+        if (error) {
+            showMessage(error, true);
+            return;
+        }
+
+        post('options', requestData()).then(function (result) {
+            var target = document.getElementById('targetRoom');
+            target.innerHTML = '<option value="">Select a room</option>';
+
+            (result.options || []).forEach(function (option) {
+                var item = document.createElement('option');
+                item.value = option.roomId;
+                item.textContent = 'Room ' + option.roomNumber + ' — R' +
+                    Number(option.rate).toFixed(2) + '/night';
+                target.appendChild(item);
+            });
+
+            if (!result.options || !result.options.length)
+                showMessage('No available upgrade rooms were found for this booking.', false);
+        }).catch(function (error) {
+            showMessage(error.message, true);
+        });
+    }
+
+    mode.addEventListener('change', loadOptions);
+    document.getElementById('ddlSourceRoom').addEventListener('change', loadOptions);
+    document.getElementById('ddlBranch').addEventListener('change', clearQuote);
+    document.getElementById('targetRoom').addEventListener('change', clearQuote);
+    document.getElementById('changeCheckIn').addEventListener('change', clearQuote);
+    document.getElementById('changeCheckOut').addEventListener('change', clearQuote);
+
+    quoteButton.addEventListener('click', function () {
+        var error = validate(true);
+        if (error) {
+            showMessage(error, true);
+            return;
+        }
+
+        quoteButton.disabled = true;
+        quoteButton.textContent = 'Checking availability…';
+        clearQuote();
+
+        post('quote', requestData()).then(showQuote).catch(function (error) {
+            showMessage(error.message, true);
+        }).finally(function () {
+            quoteButton.disabled = false;
+            quoteButton.textContent = 'Check price and availability';
+        });
+    });
+
+    applyButton.addEventListener('click', function () {
+        if (!currentQuote) {
+            showMessage('Check price and availability before confirming the change.', true);
+            return;
+        }
+
+        var error = validate(true);
+        if (error) {
+            showMessage(error, true);
+            return;
+        }
+
+        confirmChange().then(function (confirmed) {
+            if (!confirmed) return;
+
+            applyButton.disabled = true;
+            applyButton.textContent = 'Updating booking…';
+
+            var data = requestData();
+            data.expectedNewTotal = currentQuote.newTotal;
+
+            post('apply', data).then(function (result) {
+                return RegalDialog.alert(result.message || 'Your booking was updated.', {
+                    title: 'Booking updated'
+                }).then(function () {
+                    window.location.href = 'MyBookings.aspx';
+                });
+            }).catch(function (error) {
+                showMessage(error.message, true);
+                applyButton.disabled = false;
+                applyButton.textContent = 'Confirm change';
+            });
+        });
+    });
+
+    loadOptions();
+}());
 </script>
 </asp:Content>

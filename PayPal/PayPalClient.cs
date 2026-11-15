@@ -11,7 +11,10 @@ namespace CodeCrafters_Major_Project_Website.PayPal
 {
     public static class PayPalClient
     {
-        private static readonly HttpClient Http = new HttpClient();
+        private static readonly HttpClient Http = new HttpClient()
+        {
+            Timeout = TimeSpan.FromSeconds(45)
+        };
         private static string BaseUrl { get { return ConfigurationManager.AppSettings["PayPal:BaseUrl"]; } }
         public static decimal ZarToUsd(decimal zar)
         {

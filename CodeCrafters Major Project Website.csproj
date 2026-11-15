@@ -300,6 +300,7 @@
     </None>
     <Content Include="PayPal\CreateOrder.ashx" />
     <Content Include="PayPal\BookingChange.ashx" />
+    <None Include="Properties\PublishProfiles\IST-Pmb-Group-2 - Web Deploy.pubxml" />
     <None Include="Scripts\jquery-3.7.0.intellisense.js" />
     <Content Include="Scripts\jquery-3.7.0.js" />
     <Content Include="Scripts\jquery-3.7.0.min.js" />

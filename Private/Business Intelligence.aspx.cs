@@ -27,6 +27,24 @@ namespace CodeCrafters_Major_Project_Website.Private
             PowerBiLink.Visible = validReportUrl && (User.IsInRole(RoleBootstrapper.Manager) || User.IsInRole(RoleBootstrapper.Admin));
             if (PowerBiLink.Visible) PowerBiLink.NavigateUrl = reportUri.AbsoluteUri;
             PowerBiSetupNote.Visible = !PowerBiLink.Visible && (User.IsInRole(RoleBootstrapper.Manager) || User.IsInRole(RoleBootstrapper.Admin));
+            if (!IsPostBack)
+            {
+                // Fetch the Power BI embed URL from Web.config appSettings
+                string powerBiUrl = ConfigurationManager.AppSettings["PowerBI:SecureEmbedUrl"];
+
+                if (!string.IsNullOrEmpty(powerBiUrl))
+                {
+                    PowerBiLink.NavigateUrl = powerBiUrl;
+                    PowerBiLink.Visible = true;
+                    PowerBiSetupNote.Visible = false;
+                }
+                else
+                {
+                    PowerBiLink.Visible = false;
+                    PowerBiSetupNote.Visible = true;
+                }
+
+            }
         }
     }
 }

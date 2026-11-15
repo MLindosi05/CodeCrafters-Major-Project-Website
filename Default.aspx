@@ -13,7 +13,6 @@
             <h1>The Regal Inn Hotel</h1>
             <p>Timeless comfort, modern hospitality. Discover a stay crafted around you, wherever you are in South Africa.</p>
             <div class="hero-actions">
-                <%--<a href="#search" class="btn-regal">Check Availability</a>--%>
                 <a href="~/Rooms.aspx" runat="server" class="btn-outline">Explore Rooms</a>
             </div>
         </div>
@@ -31,20 +30,29 @@
         </div>
         <div class="field">
             <label for="ddlGuests">Guests</label>
-            <asp:DropDownList ID="ddlGuests" runat="server">
+            <asp:DropDownList ID="ddlGuests" runat="server" CssClass="form-control">
                 <asp:ListItem Text="1 Guest" Value="1" />
                 <asp:ListItem Text="2 Guests" Value="2" Selected="True" />
                 <asp:ListItem Text="3 Guests" Value="3" />
                 <asp:ListItem Text="4+ Guests" Value="4" />
             </asp:DropDownList>
         </div>
-          <div class="field">
-      <label>Branch</label>
-      <asp:DropDownList ID="ddlBranch" runat="server" />
-  </div>
+        <div class="field">
+            <label for="ddlBranch">Branch</label>
+            <asp:DropDownList ID="ddlBranch" runat="server" AppendDataBoundItems="true" CssClass="form-control">
+                <asp:ListItem Text="-- Select Branch --" Value="" />
+                <asp:ListItem Text="Durban North Beach" value=""/>
+<asp:ListItem Text="Pietermaritzburg" value=""/>
+    <asp:ListItem Text="Durban UMhlanga" value=""/>
+        <asp:ListItem Text="Durban Ballito" value=""/>
+            <asp:ListItem Text="Johannesburg MidRand" value=""/>
+            </asp:DropDownList>
+        </div>
         <div class="field">
             <label for="ddlRoomType">Room Type</label>
-          <asp:DropDownList ID="ddlRoomType" runat="server" />
+            <asp:DropDownList ID="ddlRoomType" runat="server" CssClass="form-control">
+                <asp:ListItem Text="Any" Value="" />
+            </asp:DropDownList>
         </div>
         <asp:Button ID="btnSearch" runat="server" Text="Search" CssClass="btn-regal" OnClick="btnSearch_Click" />
     </div>
@@ -84,7 +92,7 @@
             <ItemTemplate>
                 <div class="room-card">
                     <div class="img-wrap">
-                    <img src='<%# Eval("ImageUrl") %>' alt='<%# Eval("RoomName") %>' />
+                        <img src='<%# Eval("ImageUrl") %>' alt='<%# Eval("RoomName") %>' />
                     </div>
                     <div class="body">
                         <h3><%# Eval("RoomName") %></h3>
@@ -129,11 +137,10 @@
         <h2 class="section-title">Stay in the Know</h2>
         <p class="section-sub">Exclusive offers and seasonal rates, straight to your inbox.</p>
         <div style="display:flex; gap:1rem; justify-content:center; flex-wrap:wrap;">
-            <asp:TextBox ID="txtNewsletterEmail" runat="server" placeholder="you@example.com" style="min-width:280px;" />
+            <asp:TextBox ID="txtNewsletterEmail" runat="server" placeholder="you@example.com" style="min-width:280px;" CssClass="form-control" />
             <asp:Button ID="btnSubscribe" runat="server" Text="Subscribe" CssClass="btn-regal" OnClick="btnSubscribe_Click" />
         </div>
         <asp:Literal ID="litNewsletterMsg" runat="server" />
     </section>
-
 
 </asp:Content>
