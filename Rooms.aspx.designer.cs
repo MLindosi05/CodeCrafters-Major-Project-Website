@@ -14,6 +14,9 @@ namespace CodeCrafters_Major_Project_Website
     public partial class Rooms
     {
 
+        /// <summary>Stay date validation message displayed above the room search results.</summary>
+        protected global::System.Web.UI.WebControls.Label lblStayValidation;
+
         /// <summary>
         /// txtCheckIn control.
         /// </summary>

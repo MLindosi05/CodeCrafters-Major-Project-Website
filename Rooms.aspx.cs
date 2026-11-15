@@ -11,6 +11,8 @@ namespace CodeCrafters_Major_Project_Website
 {
     public partial class Rooms : System.Web.UI.Page
     {
+        protected int MaximumStayNights { get { return ReadMaxStayNights(); } }
+
         protected void Page_Load(object sender, EventArgs e)
         {
             if (!IsPostBack)
@@ -28,6 +30,12 @@ namespace CodeCrafters_Major_Project_Website
 
                 SaveStaySelection();
                 BindRooms(ddlBranch.SelectedValue, ddlRoomType.SelectedValue, 0);
+                string dateError = GetStayValidationError();
+                if (!String.IsNullOrEmpty(dateError))
+                {
+                    lblStayValidation.Text = Server.HtmlEncode(dateError);
+                    lblStayValidation.Visible = true;
+                }
             }
         }
 
@@ -70,6 +78,14 @@ namespace CodeCrafters_Major_Project_Website
         }
         protected void btnFilter_Click(object sender, EventArgs e)
         {
+            lblStayValidation.Visible = false;
+            string dateError = GetStayValidationError();
+            if (!String.IsNullOrEmpty(dateError))
+            {
+                lblStayValidation.Text = Server.HtmlEncode(dateError);
+                lblStayValidation.Visible = true;
+                return;
+            }
             decimal maxPrice = 0;
             decimal.TryParse(ddlMaxPrice.SelectedValue, out maxPrice);
             SaveStaySelection();
@@ -81,6 +97,23 @@ namespace CodeCrafters_Major_Project_Website
         {
             int max;
             return Int32.TryParse(ConfigurationManager.AppSettings["Booking:MaxStayNights"], out max) && max > 0 ? max : 30;
+        }
+
+        private string GetStayValidationError()
+        {
+            bool hasCheckIn = !String.IsNullOrWhiteSpace(txtCheckIn.Text);
+            bool hasCheckOut = !String.IsNullOrWhiteSpace(txtCheckOut.Text);
+            if (!hasCheckIn && !hasCheckOut) return String.Empty;
+            if (!hasCheckIn || !hasCheckOut) return "Choose both check-in and check-out dates.";
+
+            DateTime checkIn, checkOut;
+            if (!DateTime.TryParse(txtCheckIn.Text, out checkIn) || !DateTime.TryParse(txtCheckOut.Text, out checkOut))
+                return "Enter valid check-in and check-out dates.";
+            if (checkIn.Date < DateTime.Today) return "Check-in cannot be in the past.";
+            if (checkOut.Date <= checkIn.Date) return "Check-out must be after check-in.";
+            if ((checkOut.Date - checkIn.Date).TotalDays > ReadMaxStayNights())
+                return "Your stay cannot exceed " + ReadMaxStayNights() + " nights.";
+            return String.Empty;
         }
 
         private void SaveStaySelection()

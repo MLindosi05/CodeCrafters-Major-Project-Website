@@ -12,14 +12,16 @@
         return new Promise(function (resolve) { resolver = resolve; });
     }
     function close(result) { if (!backdrop || backdrop.hidden) return; backdrop.hidden = true; var done = resolver; resolver = null; if (done) done(result); }
-    document.addEventListener("DOMContentLoaded", function () {
+    function initialize() {
         backdrop = document.getElementById("regalDialogBackdrop");
         if (!backdrop) return;
         document.getElementById("regalDialogOk").addEventListener("click", function () { close(true); });
         document.getElementById("regalDialogCancel").addEventListener("click", function () { close(false); });
         backdrop.addEventListener("click", function (event) { if (event.target === backdrop) close(false); });
         document.addEventListener("keydown", function (event) { if (event.key === "Escape") close(false); });
-    });
+    }
+    if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", initialize);
+    else initialize();
     window.RegalDialog = {
         confirm: function (text, options) { return openDialog(text, options); },
         alert: function (text, options) { options = options || {}; options.alert = true; return openDialog(text, options); },

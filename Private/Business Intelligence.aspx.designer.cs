@@ -13,5 +13,19 @@ namespace CodeCrafters_Major_Project_Website.Private
 
     public partial class Business_Intelligence
     {
+
+        protected global::System.Web.UI.WebControls.Literal AsOfDate;
+        protected global::System.Web.UI.WebControls.Literal DashboardError;
+        protected global::System.Web.UI.WebControls.Literal OccupancyValue;
+        protected global::System.Web.UI.WebControls.Literal OccupiedRoomsValue;
+        protected global::System.Web.UI.WebControls.Literal AvailableRoomsValue;
+        protected global::System.Web.UI.WebControls.Literal InventoryRoomsValue;
+        protected global::System.Web.UI.WebControls.Literal ArrivalsValue;
+        protected global::System.Web.UI.WebControls.Literal DeparturesValue;
+        protected global::System.Web.UI.WebControls.Literal ActiveBookingsValue;
+        protected global::System.Web.UI.WebControls.Literal PaymentHoldsValue;
+        protected global::System.Web.UI.WebControls.Literal PropertyRows;
+        protected global::System.Web.UI.WebControls.PlaceHolder PowerBiSection;
+        protected global::System.Web.UI.WebControls.Literal PowerBiEmbed;
     }
 }

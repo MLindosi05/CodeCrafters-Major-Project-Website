@@ -38,8 +38,16 @@
                                 <asp:RoleGroup Roles="Admin,Manager,Staff">
                                     <ContentTemplate>
                                         <li><a href="~/Private/Business%20Intelligence.aspx" runat="server">Dashboard</a></li>
-                                        <li><a href="~/Private/Staff%20Management.aspx" runat="server">Staff</a></li>
                                         <li><a href="~/Private/Room%20Management.aspx" runat="server">Manage Rooms</a></li>
+                                        <asp:LoginView runat="server">
+                                            <RoleGroups>
+                                                <asp:RoleGroup Roles="Admin,Manager">
+                                                    <ContentTemplate>
+                                                        <li><a href="~/Private/Staff%20Management.aspx" runat="server">Staff</a></li>
+                                                    </ContentTemplate>
+                                                </asp:RoleGroup>
+                                            </RoleGroups>
+                                        </asp:LoginView>
                                     </ContentTemplate>
                                 </asp:RoleGroup>
                             </RoleGroups>
@@ -72,7 +80,7 @@
             <span>Total</span>
             <span id="regal-cart-total"></span>
         </div>
-       <a href="~/Payments.aspx" runat="server" class="btn-regal" style="width:100%; text-align:center; display:block;">Continue to Booking</a>
+       <a id="regalCartCheckout" href="~/Payments.aspx" runat="server" ClientIDMode="Static" class="btn-regal" style="width:100%; text-align:center; display:block;">Continue to Booking</a>
     </div>
    
 </div>

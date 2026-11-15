@@ -17,9 +17,15 @@ var RegalCart = (function () {
     }
 
     function saveItems(items) {
-        sessionStorage.setItem(STORAGE_KEY, JSON.stringify(items));
-        render();
-        updateTotal();
+        try {
+            sessionStorage.setItem(STORAGE_KEY, JSON.stringify(items));
+            render();
+            updateTotal();
+            return true;
+        } catch (e) {
+            if (window.RegalDialog) RegalDialog.alert("Your cart could not be saved. Check your browser storage settings and try again.", { title: "Unable to update cart" });
+            return false;
+        }
     }
 
     function addItem(room, stay) {
@@ -31,7 +37,10 @@ var RegalCart = (function () {
         catch (e) { if (window.RegalDialog) RegalDialog.alert("Your stay details could not be saved. Please enable session storage and try again.", { title: "Unable to save stay" }); return; }
         var items = getItems();
     
-        if (items.some(function (i) { return i.roomId === room.roomId; })) return;
+        if (items.some(function (i) { return i.roomId === room.roomId; })) {
+            if (window.RegalDialog) RegalDialog.alert("That room is already in your cart.", { title: "Room already added" });
+            return;
+        }
         items.push(room);
         saveItems(items);
     }
@@ -105,7 +114,28 @@ var RegalCart = (function () {
         return div.innerHTML;
     }
 
-    document.addEventListener("DOMContentLoaded", render);
+    document.addEventListener("DOMContentLoaded", function () {
+        render();
+        var checkout = document.getElementById("regalCartCheckout");
+        if (!checkout) return;
+        checkout.addEventListener("click", function (event) {
+            var items = getItems();
+            if (!items.length) {
+                event.preventDefault();
+                if (window.RegalDialog) RegalDialog.alert("Add a room to your cart before continuing to booking.", { title: "Your cart is empty" });
+                return;
+            }
+            var stay = null;
+            try { stay = JSON.parse(sessionStorage.getItem(STAY_KEY) || "null"); } catch (e) { }
+            var checkIn = stay && stay.checkIn ? new Date(stay.checkIn + "T00:00:00") : null;
+            var checkOut = stay && stay.checkOut ? new Date(stay.checkOut + "T00:00:00") : null;
+            var today = new Date(); today.setHours(0, 0, 0, 0);
+            if (!checkIn || !checkOut || isNaN(checkIn.getTime()) || isNaN(checkOut.getTime()) || checkIn < today || checkOut <= checkIn) {
+                event.preventDefault();
+                if (window.RegalDialog) RegalDialog.alert("Choose valid check-in and check-out dates in Rooms before continuing to booking.", { title: "Check your stay dates" });
+            }
+        });
+    });
 
     return {
         add: addItem,

@@ -59,7 +59,11 @@ namespace CodeCrafters_Major_Project_Website.Bookings
         protected void rptBookings_ItemCommand(object source, RepeaterCommandEventArgs e)
         {
             int bookingId;
-            if (!Int32.TryParse(Convert.ToString(e.CommandArgument), out bookingId) || bookingId < 1) return;
+            if (!Int32.TryParse(Convert.ToString(e.CommandArgument), out bookingId) || bookingId < 1)
+            {
+                ShowActionMessage("We could not identify that booking. Refresh the page and try again.", false);
+                return;
+            }
             string redirectTab = null;
             try
             {
@@ -107,6 +111,11 @@ namespace CodeCrafters_Major_Project_Website.Bookings
                     lblBookingsMessage.CssClass = "form-msg success";
                     redirectTab = "past";
                 }
+                else
+                {
+                    ShowActionMessage("That booking action is not available. Refresh the page and try again.", false);
+                    return;
+                }
             }
             catch (InvalidOperationException ex)
             {
@@ -129,6 +138,14 @@ namespace CodeCrafters_Major_Project_Website.Bookings
             lblBookingsMessage.Visible = true;
             ClientScript.RegisterStartupScript(GetType(), "bookingNotice", "RegalDialog.alert(" + HttpUtility.JavaScriptStringEncode(Server.HtmlDecode(lblBookingsMessage.Text), true) + ", { title: 'Booking update' });", true);
             BindBookings();
+        }
+
+        private void ShowActionMessage(string message, bool success)
+        {
+            lblBookingsMessage.Text = Server.HtmlEncode(message);
+            lblBookingsMessage.CssClass = success ? "form-msg success" : "form-msg error";
+            lblBookingsMessage.Visible = true;
+            ClientScript.RegisterStartupScript(GetType(), "bookingNotice", "RegalDialog.alert(" + HttpUtility.JavaScriptStringEncode(message, true) + ", { title: 'Booking update' });", true);
         }
 
         private static bool IsActive(string status)

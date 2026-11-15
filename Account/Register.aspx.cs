@@ -38,6 +38,36 @@ namespace CodeCrafters_Major_Project_Website.Account
             if (!Page.IsValid) return;
 
             string email = Email.Text.Trim();
+            bool creatingStaffAccount = String.Equals(AccountType.SelectedValue, "Staff", StringComparison.OrdinalIgnoreCase);
+            if (!creatingStaffAccount && !String.Equals(AccountType.SelectedValue, "Guest", StringComparison.OrdinalIgnoreCase))
+            {
+                ErrorMessage.Text = "<div class='form-msg error'>Choose a valid account type.</div>";
+                return;
+            }
+
+            string staffRole = null;
+            if (creatingStaffAccount)
+            {
+                try
+                {
+                    // Staff accounts may only be created for an employee already present
+                    // and active in the existing Staff table. Never create a Client row here.
+                    staffRole = new StaffAccountService().MatchActiveStaffForRegistration(
+                        email, FirstName.Text.Trim(), LastName.Text.Trim(), Phone.Text.Trim());
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Trace.TraceError("Staff registration lookup failed: " + ex);
+                    ErrorMessage.Text = "<div class='form-msg error'>Staff registration is temporarily unavailable. Please try again.</div>";
+                    return;
+                }
+                if (String.IsNullOrWhiteSpace(staffRole))
+                {
+                    ErrorMessage.Text = "<div class='form-msg error'>We couldn't match those details to an active staff record. Check your details or contact your administrator.</div>";
+                    return;
+                }
+            }
+
             var user = new ApplicationUser { UserName = email, Email = email };
 
             IdentityResult result;
@@ -47,25 +77,32 @@ namespace CodeCrafters_Major_Project_Website.Account
             }
             catch (Exception ex)
             {
-                ErrorMessage.Text = "<div class='form-msg error'>Account creation failed unexpectedly: " + ex.Message + "</div>";
+                System.Diagnostics.Trace.TraceError("Account creation failed during registration: " + ex);
+                ErrorMessage.Text = "<div class='form-msg error'>Account creation failed unexpectedly. Please try again.</div>";
                 return;
             }
 
             if (!result.Succeeded)
             {
-                ErrorMessage.Text = "<div class='form-msg error'>" + string.Join("<br/>", result.Errors) + "</div>";
+                ErrorMessage.Text = "<div class='form-msg error'>" + HttpUtility.HtmlEncode(string.Join(" ", result.Errors)) + "</div>";
                 return;
             }
 
             try
             {
-                CreateClientProfile(email);
-                RoleBootstrapper.EnsureGuestRole(UserManager, user.Id);
+                if (creatingStaffAccount)
+                    RoleBootstrapper.EnsureRole(UserManager, user.Id, StaffAccountService.ToIdentityRole(staffRole));
+                else
+                {
+                    CreateClientProfile(email);
+                    RoleBootstrapper.EnsureGuestRole(UserManager, user.Id);
+                }
             }
             catch (Exception ex)
             {
                 try { UserManager.Delete(user); } catch { /* ignore */ }
-                ErrorMessage.Text = "<div class='form-msg error'>We could not create your guest profile. Please try again. (" + ex.Message + ")</div>";
+                System.Diagnostics.Trace.TraceError("Profile setup failed during registration: " + ex);
+                ErrorMessage.Text = "<div class='form-msg error'>We could not finish setting up this account. Please try again.</div>";
                 return;
             }
 

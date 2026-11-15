@@ -9,6 +9,7 @@ using System.Web.UI.WebControls;
 using Microsoft.AspNet.Identity;
 using Microsoft.Owin.Security;
 using Microsoft.AspNet.Identity.Owin;
+using CodeCrafters_Major_Project_Website.Models;
 
 
 namespace CodeCrafters_Major_Project_Website
@@ -72,7 +73,31 @@ namespace CodeCrafters_Major_Project_Website
 
         protected void Page_Load(object sender, EventArgs e)
         {
-
+            if (Context.User != null && Context.User.Identity != null && Context.User.Identity.IsAuthenticated &&
+                (Context.User.IsInRole(RoleBootstrapper.Staff) || Context.User.IsInRole(RoleBootstrapper.Manager) || Context.User.IsInRole(RoleBootstrapper.Admin)))
+            {
+                try
+                {
+                    string staffRole = new StaffAccountService().FindActiveStaffRole(Context.User.Identity.Name);
+                    string expectedRole = StaffAccountService.ToIdentityRole(staffRole);
+                    bool roleMatches = !String.IsNullOrWhiteSpace(staffRole) && Context.User.IsInRole(expectedRole);
+                    if (!roleMatches)
+                    {
+                        Context.GetOwinContext().Authentication.SignOut(DefaultAuthenticationTypes.ApplicationCookie);
+                        Response.Redirect("~/Account/Login.aspx?staff=inactive", false);
+                        Context.ApplicationInstance.CompleteRequest();
+                        return;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Trace.TraceError("Staff access status check failed: " + ex);
+                    Context.GetOwinContext().Authentication.SignOut(DefaultAuthenticationTypes.ApplicationCookie);
+                    Response.Redirect("~/Account/Login.aspx?staff=verify", false);
+                    Context.ApplicationInstance.CompleteRequest();
+                    return;
+                }
+            }
         }
 
         protected void Unnamed_LoggingOut(object sender, LoginCancelEventArgs e)

@@ -14,16 +14,24 @@
             <div style="text-align:center; margin-bottom:2rem;">
                 <div style="font-family:var(--font-head); font-size:1.1rem; color:var(--gold-300); letter-spacing:1px;">THE REGAL INN HOTEL</div>
                 <h1 style="margin:.4rem 0 0; font-size:1.8rem;">Welcome Back</h1>
-                <p style="color:var(--cream-dim); margin:.4rem 0 0; font-size:.9rem;">Log in to manage your bookings.</p>
+                <p style="color:var(--cream-dim); margin:.4rem 0 0; font-size:.9rem;">Choose how you want to sign in.</p>
             </div>
 
             <asp:ValidationSummary runat="server" CssClass="form-msg error" DisplayMode="BulletList" />
             <asp:Literal runat="server" ID="FailureText" EnableViewState="false" />
 
             <div class="field">
+                <label for="AccountType">Log in as</label>
+                <asp:DropDownList runat="server" ID="AccountType" CssClass="regal-input" TabIndex="1">
+                    <asp:ListItem Text="Guest / User" Value="Guest" Selected="True" />
+                    <asp:ListItem Text="Manager / Staff" Value="Staff" />
+                </asp:DropDownList>
+            </div>
+
+            <div class="field">
                 <label for="Email">Email</label>
                 <div style="position:relative;">
-                    <asp:TextBox runat="server" ID="Email" CssClass="regal-input" placeholder="you@example.com" TabIndex="1" />
+                    <asp:TextBox runat="server" ID="Email" CssClass="regal-input" placeholder="you@example.com" TabIndex="2" />
                 </div>
                 <asp:RequiredFieldValidator runat="server" ControlToValidate="Email"
                     CssClass="field-error" ErrorMessage="Email is required." Display="Dynamic" />
@@ -32,7 +40,7 @@
             <div class="field">
                 <label for="Password">Password</label>
                 <div style="position:relative;">
-                    <asp:TextBox runat="server" ID="Password" TextMode="Password" CssClass="regal-input" placeholder="••••••••" TabIndex="2" />
+                    <asp:TextBox runat="server" ID="Password" TextMode="Password" CssClass="regal-input" placeholder="••••••••" TabIndex="3" />
                     <button type="button" class="pw-toggle" data-target="<%= Password.ClientID %>" aria-label="Show password">👁</button>
                 </div>
                 <asp:RequiredFieldValidator runat="server" ControlToValidate="Password"
@@ -41,14 +49,14 @@
 
             <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:1.5rem;">
                 <label style="display:flex; align-items:center; gap:.5rem; font-size:.85rem; color:var(--cream-dim); font-weight:400;">
-                    <asp:CheckBox runat="server" ID="RememberMe" TabIndex="3" />
+                    <asp:CheckBox runat="server" ID="RememberMe" TabIndex="4" />
                     Remember me
                 </label>
                 <a href="~/Account/Forgot.aspx" runat="server" style="font-size:.85rem;">Forgot password?</a>
             </div>
 
             <asp:Button runat="server" OnClick="LogIn_Click" Text="Log In" ID="LoginButton"
-                CssClass="btn-regal" TabIndex="4" style="width:100%; font-size:1rem;" />
+                CssClass="btn-regal" TabIndex="5" style="width:100%; font-size:1rem;" />
 
             <p style="text-align:center; margin-top:1.5rem; font-size:.9rem; color:var(--cream-dim);">
                 Don't have an account?

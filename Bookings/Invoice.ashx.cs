@@ -23,15 +23,21 @@ namespace CodeCrafters_Major_Project_Website.Bookings
                     : String.Equals(type, "amended", StringComparison.OrdinalIgnoreCase)
                         ? new InvoiceService().GetOrCreateAmended(context.User.Identity.Name, id)
                         : new InvoiceService().GetOrCreate(context.User.Identity.Name, id, false);
+                var file = new System.IO.FileInfo(path);
+                if (!file.Exists || file.Length < 256)
+                    throw new System.IO.IOException("The invoice PDF could not be generated.");
+                context.Response.Clear();
                 context.Response.ContentType = "application/pdf";
+                context.Response.AddHeader("Content-Length", file.Length.ToString(System.Globalization.CultureInfo.InvariantCulture));
                 context.Response.AddHeader("Content-Disposition", "attachment; filename=\"" + System.IO.Path.GetFileName(path) + "\"");
                 context.Response.TransmitFile(path);
             }
             catch (InvalidOperationException ex)
-            { context.Response.StatusCode = 404; context.Response.ContentType = "text/plain"; context.Response.Write(ex.Message); }
+            { context.Response.Clear(); context.Response.StatusCode = 404; context.Response.TrySkipIisCustomErrors = true; context.Response.ContentType = "text/plain"; context.Response.Write(ex.Message); }
             catch (Exception ex)
             {
                 System.Diagnostics.Trace.TraceError("Invoice generation failed: " + ex);
+                context.Response.Clear();
                 context.Response.StatusCode = 500; context.Response.ContentType = "text/plain"; context.Response.Write("Invoice generation is temporarily unavailable.");
             }
         }

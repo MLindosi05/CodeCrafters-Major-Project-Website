@@ -24,6 +24,11 @@ namespace CodeCrafters_Major_Project_Website.Account
         protected global::System.Web.UI.WebControls.Literal FailureText;
 
         /// <summary>
+        /// AccountType control.
+        /// </summary>
+        protected global::System.Web.UI.WebControls.DropDownList AccountType;
+
+        /// <summary>
         /// Email control.
         /// </summary>
         /// <remarks>

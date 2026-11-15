@@ -44,7 +44,8 @@
                     <asp:ListItem Text="Up to R3000" Value="3000" />
                 </asp:DropDownList>
             </div>
-            <asp:Button ID="btnFilter" runat="server" Text="Search" CssClass="btn-regal" OnClick="btnFilter_Click" />
+            <asp:Button ID="btnFilter" runat="server" Text="Search" CssClass="btn-regal" OnClick="btnFilter_Click" OnClientClick="return validateRoomSearch();" />
+            <asp:Label ID="lblStayValidation" runat="server" Visible="false" CssClass="form-msg error" style="grid-column:1/-1;" />
         </div>
 
         <!-- Room results -->
@@ -71,7 +72,7 @@
             <div style="display:flex; gap:.6rem;">
               <%--  <asp:Button runat="server" Text="Book Now" CssClass="btn-regal"
                     CommandName="Book" CommandArgument='<%# Eval("RoomId") %>' />--%>
-                <button type="button" class="btn-outline room-add-to-cart" disabled="disabled"
+                <button type="button" class="btn-outline room-add-to-cart"
                     data-room-id='<%# Eval("RoomId") %>' data-room-name='<%# System.Web.HttpUtility.HtmlAttributeEncode(Convert.ToString(Eval("RoomName"))) %>'
                     data-branch-name='<%# System.Web.HttpUtility.HtmlAttributeEncode(Convert.ToString(Eval("BranchName"))) %>' data-price='<%# Eval("PricePerNight") %>'>
                     Add to Cart
@@ -124,22 +125,38 @@
 
 <asp:Content ID="ScriptC" ContentPlaceHolderID="ScriptContent" runat="server">
     <script>
+        var MAX_STAY_NIGHTS = <%= MaximumStayNights %>;
         (function () {
             var checkIn = document.getElementById('<%= txtCheckIn.ClientID %>');
             var checkOut = document.getElementById('<%= txtCheckOut.ClientID %>');
             var search = document.getElementById('<%= btnFilter.ClientID %>');
-            function validateStay() {
+            function stayValidationMessage() {
+                if (!checkIn.value || !checkOut.value) return "Choose both check-in and check-out dates before adding a room to your cart.";
                 var now = new Date();
                 var today = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0') + '-' + String(now.getDate()).padStart(2, '0');
-                var valid = checkIn.value && checkOut.value && checkOut.value > checkIn.value && checkIn.value >= today;
-                document.querySelectorAll('.room-add-to-cart').forEach(function (button) { button.disabled = !valid; });
+                if (checkIn.value < today) return "Check-in cannot be in the past. Choose another date.";
+                if (checkOut.value <= checkIn.value) return "Check-out must be after check-in.";
+                var nights = (new Date(checkOut.value + "T00:00:00") - new Date(checkIn.value + "T00:00:00")) / 86400000;
+                if (nights > MAX_STAY_NIGHTS) return "Your stay cannot exceed " + MAX_STAY_NIGHTS + " nights.";
+                return "";
             }
+            window.validateRoomSearch = function () {
+                if (!checkIn.value && !checkOut.value) return true;
+                var error = stayValidationMessage();
+                if (!error) return true;
+                RegalDialog.alert(error, { title: "Check your stay dates" });
+                return false;
+            };
             function changeStay() {
-                validateStay();
-                if (checkIn.value && checkOut.value && checkOut.value > checkIn.value && checkIn.value >= (function () { var d = new Date(); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); })()) search.click();
+                if (!checkIn.value || !checkOut.value) return;
+                var error = stayValidationMessage();
+                if (error) { RegalDialog.alert(error, { title: "Check your stay dates" }); return; }
+                search.click();
             }
             document.querySelectorAll('.room-add-to-cart').forEach(function (button) {
                 button.addEventListener('click', function () {
+                    var error = stayValidationMessage();
+                    if (error) { RegalDialog.alert(error, { title: "Choose stay dates" }); return; }
                     RegalCart.add({ roomId: button.getAttribute('data-room-id'), roomName: button.getAttribute('data-room-name'),
                         branchName: button.getAttribute('data-branch-name'), pricePerNight: button.getAttribute('data-price') },
                         { checkIn: checkIn.value, checkOut: checkOut.value, guestCount: document.getElementById('<%= ddlGuests.ClientID %>').value });
@@ -150,8 +167,8 @@
             document.getElementById('<%= ddlGuests.ClientID %>').addEventListener('change', function () {
                 if (checkIn.value && checkOut.value) search.click();
             });
-            validateStay();
         })();
+
     </script>
     <script>
         // Show the dimmed backdrop whenever the modal panel is server-rendered visible

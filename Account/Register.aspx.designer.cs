@@ -14,6 +14,9 @@ namespace CodeCrafters_Major_Project_Website.Account
     public partial class Register
     {
 
+        /// <summary>Account type selected at registration.</summary>
+        protected global::System.Web.UI.WebControls.DropDownList AccountType;
+
         /// <summary>
         /// ErrorMessage control.
         /// </summary>

@@ -479,6 +479,7 @@
     <Compile Include="Models\InvoiceService.cs" />
     <Compile Include="Bookings\Invoice.ashx.cs" />
     <Compile Include="Models\RoleBootstrapper.cs" />
+    <Compile Include="Models\StaffAccountService.cs" />
     <Compile Include="Bookings\Confirmation.aspx.cs">
       <DependentUpon>Confirmation.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>

@@ -13,5 +13,8 @@ namespace CodeCrafters_Major_Project_Website.Private
 
     public partial class WebForm1
     {
+
+        protected global::System.Web.UI.WebControls.Literal StaffFeedback;
+        protected global::System.Web.UI.WebControls.GridView StaffGrid;
     }
 }

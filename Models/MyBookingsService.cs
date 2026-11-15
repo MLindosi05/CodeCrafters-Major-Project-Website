@@ -107,7 +107,8 @@ ORDER BY b.Booking_Date DESC,b.Booking_ID DESC,hr.hotel_room_number";
                                 CanMobileCheckIn = IsWithinMobileCheckInWindow(status, checkIn, checkOut),
                                 CanMobileCheckOut = status == "CheckedIn",
                                 CanDownloadInvoice = status == "Confirmed" || status == "Booked" || status == "CheckedIn" || status == "Completed" ||
-                                    (status == "Cancelled" && reader["Credit_Amount"] != DBNull.Value && Convert.ToDecimal(reader["Credit_Amount"]) > 0),
+                                    (status == "Cancelled" && ((reader["Credit_Amount"] != DBNull.Value && Convert.ToDecimal(reader["Credit_Amount"]) > 0) ||
+                                        (payment != null && payment.Status == "Paid"))),
                                 CanDownloadCreditNote = status == "Cancelled" && reader["Credit_Amount"] != DBNull.Value && Convert.ToDecimal(reader["Credit_Amount"]) > 0
                                 ,CanResendConfirmation = status == "Confirmed" || status == "Booked" || status == "CheckedIn" || status == "Completed"
                             };
@@ -190,6 +191,8 @@ WHERE Booking_ID=@Id AND Client_ID=@ClientId", connection, transaction))
         {
             if (String.IsNullOrWhiteSpace(email)) throw new InvalidOperationException("Please sign in to resend a confirmation.");
             const string sql = @"SELECT b.Checkin_Date,b.Checkout_Date,b.Booking_Status FROM Booking b INNER JOIN Client c ON c.Client_ID=b.Client_ID WHERE b.Booking_ID=@Id AND c.Email_Address=@Email AND c.Client_Status='Active'";
+            DateTime checkIn, checkOut;
+            string status;
             using (var connection = new SqlConnection(connectionString))
             using (var command = new SqlCommand(sql, connection))
             {
@@ -197,16 +200,24 @@ WHERE Booking_ID=@Id AND Client_ID=@ClientId", connection, transaction))
                 using (var reader = command.ExecuteReader())
                 {
                     if (!reader.Read()) throw new InvalidOperationException("That booking was not found on your account.");
-                    string status = Convert.ToString(reader["Booking_Status"]);
-                    if (status != "Confirmed" && status != "Booked" && status != "CheckedIn" && status != "Completed") throw new InvalidOperationException("Only paid bookings have a confirmation email.");
-                    BookingSupportStore.EnqueueEmail(email, "Your Regal Inn booking confirmation", "Booking #" + bookingId + " is " + status + ". Check-in: " + Convert.ToDateTime(reader["Checkin_Date"]).ToString("dd MMM yyyy") + "; check-out: " + Convert.ToDateTime(reader["Checkout_Date"]).ToString("dd MMM yyyy") + ".");
+                    status = Convert.ToString(reader["Booking_Status"]);
+                    checkIn = Convert.ToDateTime(reader["Checkin_Date"]);
+                    checkOut = Convert.ToDateTime(reader["Checkout_Date"]);
                 }
             }
+            if (status != "Confirmed" && status != "Booked" && status != "CheckedIn" && status != "Completed")
+                throw new InvalidOperationException("Only paid bookings have a confirmation email.");
+            string invoice = new InvoiceService().GetOrCreate(email, bookingId, false);
+            string body = "Booking #" + bookingId + " is " + status + ". Check-in: " + checkIn.ToString("dd MMM yyyy", CultureInfo.InvariantCulture) +
+                "; check-out: " + checkOut.ToString("dd MMM yyyy", CultureInfo.InvariantCulture) + ". Your invoice and receipt are attached.";
+            BookingSupportStore.EnqueueEmail(email, "Your Regal Inn booking confirmation", body, invoice);
         }
 
         public bool MobileCheckIn(string email, int bookingId, string documentNumber, string arrivalTime, string requests)
         {
             if (String.IsNullOrWhiteSpace(documentNumber) || documentNumber.Trim().Length > 80) throw new InvalidOperationException("Enter a valid ID or passport number.");
+            if (!String.IsNullOrWhiteSpace(arrivalTime) && arrivalTime.Trim().Length > 40) throw new InvalidOperationException("Arrival time must be 40 characters or fewer.");
+            if (!String.IsNullOrWhiteSpace(requests) && requests.Trim().Length > 500) throw new InvalidOperationException("Special requests must be 500 characters or fewer.");
             int window;
             if (!Int32.TryParse(ConfigurationManager.AppSettings["Booking:MobileCheckInWindow"], out window) || window < 0) window = 1;
             string receptionEmail = String.Empty, branchName = String.Empty, guestName = String.Empty;

@@ -84,7 +84,7 @@ namespace CodeCrafters_Major_Project_Website.Models
                     if (!IsValidPdf(temporary)) throw new InvalidDataException("The invoice renderer did not produce a valid PDF.");
                     File.Copy(temporary, output, true);
                     File.WriteAllText(metadataPath, JsonConvert.SerializeObject(new InvoiceFileMetadata
-                    { Version = 2, BookingId = bookingId, InvoiceNumber = number, Type = type, CreatedUtc = DateTime.UtcNow, FileName = fileName }));
+                    { Version = 3, BookingId = bookingId, InvoiceNumber = number, Type = type, CreatedUtc = DateTime.UtcNow, FileName = fileName }));
                 }
                 finally { if (File.Exists(temporary)) File.Delete(temporary); }
             }
@@ -235,9 +235,18 @@ WHERE b.Booking_ID=@Id AND c.Email_Address=@Email AND c.Client_Status='Active'";
                         column.Item().AlignRight().Text("Taxes / fees: R" + (data.TaxAmount ?? 0m).ToString("N2", CultureInfo.InvariantCulture));
                     }
                     else column.Item().PaddingTop(7).Text("Historical per-room rates and tax breakdown were not retained for this booking in the existing database.").FontSize(8).FontColor(Colors.Grey.Darken1);
-                    column.Item().AlignRight().PaddingTop(8).Text((creditNote ? "Recorded refund credit: " : "Total paid: ") + "R" + (creditNote ? data.Refund : data.Total).ToString("N2", CultureInfo.InvariantCulture)).FontSize(14).Bold();
-                    if (!creditNote) column.Item().AlignRight().Text("Balance due: R0.00");
-                    column.Item().PaddingTop(3).Text("Payment method: PayPal · Payment status: " + (data.Status == "Cancelled" ? "Cancelled" : "Paid / confirmed"));
+                    if (creditNote)
+                    {
+                        column.Item().AlignRight().PaddingTop(8).Text("Original booking total: R" + data.Total.ToString("N2", CultureInfo.InvariantCulture));
+                        column.Item().AlignRight().Text("Non-refundable amount: R" + data.Penalty.ToString("N2", CultureInfo.InvariantCulture));
+                        column.Item().AlignRight().Text("Recorded refund credit: R" + data.Refund.ToString("N2", CultureInfo.InvariantCulture)).FontSize(14).Bold();
+                    }
+                    else
+                    {
+                        column.Item().AlignRight().PaddingTop(8).Text("Total paid: R" + data.Total.ToString("N2", CultureInfo.InvariantCulture)).FontSize(14).Bold();
+                        column.Item().AlignRight().Text("Balance due: R0.00");
+                    }
+                    column.Item().PaddingTop(3).Text("Booking status: " + data.Status + " · Payment method: PayPal · Payment status: " + (data.Status == "Cancelled" ? "Cancelled" : "Paid / confirmed"));
                     if (data.PaidUtc.HasValue) column.Item().Text("Paid on: " + data.PaidUtc.Value.ToString("dd MMM yyyy HH:mm 'UTC'", CultureInfo.InvariantCulture));
                     if (!String.IsNullOrWhiteSpace(data.PayPalOrderId)) column.Item().Text("PayPal order: " + data.PayPalOrderId);
                     if (!String.IsNullOrWhiteSpace(data.CaptureId)) column.Item().Text("PayPal transaction: " + data.CaptureId);
@@ -269,12 +278,18 @@ WHERE b.Booking_ID=@Id AND c.Email_Address=@Email AND c.Client_Status='Active'";
 
         private static bool IsValidPdf(string path)
         {
-            if (!File.Exists(path) || new FileInfo(path).Length < 8) return false;
+            if (!File.Exists(path)) return false;
+            long length = new FileInfo(path).Length;
+            if (length < 256) return false;
             using (var stream = File.OpenRead(path))
             {
                 byte[] header = new byte[5];
-                return stream.Read(header, 0, header.Length) == header.Length &&
-                    System.Text.Encoding.ASCII.GetString(header) == "%PDF-";
+                if (stream.Read(header, 0, header.Length) != header.Length || System.Text.Encoding.ASCII.GetString(header) != "%PDF-") return false;
+                int tailLength = (int)Math.Min(1024, length);
+                stream.Seek(-tailLength, SeekOrigin.End);
+                byte[] tail = new byte[tailLength];
+                int read = stream.Read(tail, 0, tail.Length);
+                return System.Text.Encoding.ASCII.GetString(tail, 0, read).Contains("%%EOF");
             }
         }
 
@@ -284,7 +299,7 @@ WHERE b.Booking_ID=@Id AND c.Email_Address=@Email AND c.Client_Status='Active'";
             try
             {
                 var metadata = JsonConvert.DeserializeObject<InvoiceFileMetadata>(File.ReadAllText(metadataPath));
-                return metadata != null && metadata.Version == 2 &&
+                return metadata != null && metadata.Version == 3 &&
                     String.Equals(metadata.FileName, Path.GetFileName(pdfPath), StringComparison.OrdinalIgnoreCase);
             }
             catch { return false; }

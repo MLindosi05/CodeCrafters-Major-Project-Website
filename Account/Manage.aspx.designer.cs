@@ -59,6 +59,20 @@ namespace CodeCrafters_Major_Project_Website.Account
         /// </remarks>
         protected global::System.Web.UI.WebControls.HiddenField hdnOriginalEmail;
 
+        protected global::System.Web.UI.WebControls.Literal ProfileErrorMessage;
+        protected global::System.Web.UI.WebControls.ValidationSummary ProfileValidationSummary;
+        protected global::System.Web.UI.WebControls.RequiredFieldValidator rfvProfileUsername;
+        protected global::System.Web.UI.WebControls.RequiredFieldValidator rfvProfileFirstName;
+        protected global::System.Web.UI.WebControls.RequiredFieldValidator rfvProfileLastName;
+        protected global::System.Web.UI.WebControls.RequiredFieldValidator rfvProfileEmail;
+        protected global::System.Web.UI.WebControls.RegularExpressionValidator revProfileEmail;
+        protected global::System.Web.UI.WebControls.RequiredFieldValidator rfvProfilePhone;
+        protected global::System.Web.UI.WebControls.RegularExpressionValidator revProfilePhone;
+        protected global::System.Web.UI.WebControls.Label lblStaffAccountHint;
+        protected global::System.Web.UI.WebControls.PlaceHolder clientAddressSection;
+        protected global::System.Web.UI.WebControls.PlaceHolder staffStatusSection;
+        protected global::System.Web.UI.WebControls.DropDownList ddlProfileStatus;
+
         /// <summary>
         /// txtProfileUsername control.
         /// </summary>

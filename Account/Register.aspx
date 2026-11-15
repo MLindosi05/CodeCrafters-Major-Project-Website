@@ -12,20 +12,28 @@
             <div style="text-align:center; margin-bottom:2rem;">
                 <div style="font-family:var(--font-head); font-size:1.1rem; color:var(--gold-300); letter-spacing:1px;">THE REGAL INN HOTEL</div>
                 <h1 style="margin:.4rem 0 0; font-size:1.8rem;">Create Your Account</h1>
-                <p style="color:var(--cream-dim); margin:.4rem 0 0; font-size:.9rem;">Book faster, track stays, unlock member rates.</p>
+                <p style="color:var(--cream-dim); margin:.4rem 0 0; font-size:.9rem;">Choose guest or staff access.</p>
             </div>
 
             <asp:ValidationSummary runat="server" CssClass="form-msg error" DisplayMode="BulletList" />
             <asp:Literal runat="server" ID="ErrorMessage" EnableViewState="false" />
 
             <div class="field">
+                <label for="AccountType">Account type</label>
+                <asp:DropDownList runat="server" ID="AccountType" CssClass="regal-input" TabIndex="1">
+                    <asp:ListItem Text="Guest / User" Value="Guest" Selected="True" />
+                    <asp:ListItem Text="Manager / Staff" Value="Staff" />
+                </asp:DropDownList>
+            </div>
+
+            <div class="field">
                 <label for="FirstName">First name</label>
-                <asp:TextBox runat="server" ID="FirstName" CssClass="regal-input" placeholder="Your first name" TabIndex="1" />
+                <asp:TextBox runat="server" ID="FirstName" CssClass="regal-input" placeholder="Your first name" TabIndex="2" />
                 <asp:RequiredFieldValidator runat="server" ControlToValidate="FirstName" CssClass="field-error" ErrorMessage="First name is required." Display="Dynamic" />
             </div>
             <div class="field">
                 <label for="LastName">Last name</label>
-                <asp:TextBox runat="server" ID="LastName" CssClass="regal-input" placeholder="Your last name" TabIndex="2" />
+                <asp:TextBox runat="server" ID="LastName" CssClass="regal-input" placeholder="Your last name" TabIndex="3" />
                 <asp:RequiredFieldValidator runat="server" ControlToValidate="LastName" CssClass="field-error" ErrorMessage="Last name is required." Display="Dynamic" />
             </div>
 
@@ -41,7 +49,7 @@
                   
             <div class="field">
                  <label for="Phone">Phone number</label>
-                 <asp:TextBox runat="server" ID="Phone" CssClass="regal-input" placeholder="e.g. 0821234567" TabIndex="6" />
+                 <asp:TextBox runat="server" ID="Phone" CssClass="regal-input" placeholder="e.g. 0821234567" TabIndex="4" />
                  <asp:RequiredFieldValidator runat="server" ControlToValidate="Phone" CssClass="field-error" ErrorMessage="Phone number is required." Display="Dynamic" />
             </div>
 
@@ -49,7 +57,7 @@
                 <label for="Password">Password</label>
                 <div style="position:relative;">
                     <asp:TextBox runat="server" ID="Password" TextMode="Password" CssClass="regal-input"
-                        placeholder="At least 6 characters" TabIndex="4" onkeyup="regalCheckStrength(this.value)" />
+                        placeholder="At least 6 characters" TabIndex="5" onkeyup="regalCheckStrength(this.value)" />
                     <button type="button" class="pw-toggle" data-target="<%= Password.ClientID %>" aria-label="Show password">👁</button>
                 </div>
                 <div class="strength-track"><div id="strengthBar" class="strength-fill"></div></div>
@@ -61,17 +69,17 @@
             <div class="field">
                 <label for="ConfirmPassword">Confirm Password</label>
                 <asp:TextBox runat="server" ID="ConfirmPassword" TextMode="Password" CssClass="regal-input"
-                    placeholder="Re-enter your password" TabIndex="5" />
+                    placeholder="Re-enter your password" TabIndex="6" />
                 <asp:CompareValidator runat="server" ControlToValidate="ConfirmPassword" ControlToCompare="Password"
                     CssClass="field-error" ErrorMessage="Passwords do not match." Display="Dynamic" />
             </div>
 
             <p style="font-size:.78rem; color:var(--cream-dim); margin:-.5rem 0 1.3rem;">
-                By creating an account you agree to receive a verification email to confirm your address before logging in.
+                Staff sign-ups are matched to an active staff record already on file.
             </p>
 
             <asp:Button runat="server" OnClick="CreateUser_Click" Text="Create Account" ID="RegisterButton"
-                CssClass="btn-regal" TabIndex="6" style="width:100%; font-size:1rem;" />
+                CssClass="btn-regal" TabIndex="7" style="width:100%; font-size:1rem;" />
 
             <p style="text-align:center; margin-top:1.5rem; font-size:.9rem; color:var(--cream-dim);">
                 Already have an account?
