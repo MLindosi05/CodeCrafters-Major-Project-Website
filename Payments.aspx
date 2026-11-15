@@ -71,6 +71,8 @@
         var PAYMENT_ATTEMPT = "<%: PaymentAttemptToken %>";
         var GUEST_COUNT = "<%: BookingGuestCount %>";
         var SMS_OTP_READY = <%= SmsOtpConfigured ? "true" : "false" %>;
+        var RESUMING_BOOKING = <%= IsResumingBooking ? "true" : "false" %>;
+        var RESUME_CART = JSON.parse("<%= System.Web.HttpUtility.JavaScriptStringEncode(ResumeCartJson) %>");
         var TAX_PERCENT = parseFloat("<%: BookingTaxPercentage %>") || 0;
         var pendingPayPalOrderId = null;
 
@@ -221,6 +223,11 @@
         document.addEventListener("DOMContentLoaded", function () {
             document.getElementById("verifyOtpButton").addEventListener("click", verifyOtpAndCapture);
             document.getElementById("cancelOtpButton").addEventListener("click", function () { document.getElementById("bookingOtpDialog").hidden = true; showMsg("Booking not confirmed. Enter the SMS code to continue.", false); });
+            if (RESUMING_BOOKING && RESUME_CART.length) {
+                sessionStorage.setItem(CART_KEY, JSON.stringify(RESUME_CART));
+                sessionStorage.setItem(STAY_KEY, JSON.stringify({ checkIn: document.getElementById("payCheckIn").value,
+                    checkOut: document.getElementById("payCheckOut").value, guestCount: GUEST_COUNT }));
+            }
             loadOrderSummary();
             if (!SMS_OTP_READY) return;
             var items = getCart();
@@ -231,7 +238,11 @@
                 showMsg("Your cart dates do not match. Return to Rooms, search for the correct dates, and add the rooms again.", false);
                 return;
             }
-            postJson("<%= ResolveUrl("~/PayPal/CreateOrder.ashx?action=validate") %>", { roomIds: items.map(function (i) { return i.roomId; }) })
+            postJson("<%= ResolveUrl("~/PayPal/CreateOrder.ashx?action=validate") %>", {
+                roomIds: items.map(function (i) { return i.roomId; }),
+                checkIn: document.getElementById("payCheckIn").value,
+                checkOut: document.getElementById("payCheckOut").value
+            })
                 .then(renderPayPal)
                 .catch(function (err) { showMsg(err.message, false); });
         });

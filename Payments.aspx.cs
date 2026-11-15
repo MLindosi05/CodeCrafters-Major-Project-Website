@@ -8,6 +8,9 @@ using System.Text;
 using System.Web;
 using System.Web.UI;
 using System.Web.UI.WebControls;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using CodeCrafters_Major_Project_Website.Models;
 
 
 namespace CodeCrafters_Major_Project_Website
@@ -25,6 +28,8 @@ namespace CodeCrafters_Major_Project_Website
         protected string BookingGuestCount { get; private set; }
         protected string PaymentCsrfToken { get; private set; }
         protected string PaymentAttemptToken { get; private set; }
+        protected string ResumeCartJson { get; private set; } = "[]";
+        protected bool IsResumingBooking { get; private set; }
         protected string BookingTaxPercentage { get { return ConfigurationManager.AppSettings["Booking:TaxPercentage"] ?? "0"; } }
         protected bool SmsOtpConfigured
         {
@@ -44,6 +49,28 @@ namespace CodeCrafters_Major_Project_Website
             {
                 Response.Redirect("~/Account/Login.aspx?ReturnUrl=" + Server.UrlEncode(Request.RawUrl));
                 return;
+            }
+            int resumeBookingId;
+            bool requestedResume = Int32.TryParse(Request.QueryString["resumeBookingId"], out resumeBookingId) && resumeBookingId > 0;
+            if (!requestedResume) Session.Remove("Payment.ResumeBookingId");
+            if (requestedResume)
+            {
+                try { PreparePendingBookingResume(resumeBookingId); }
+                catch (InvalidOperationException ex)
+                {
+                    Session["MyBookings.Notice"] = ex.Message;
+                    Response.Redirect("~/Bookings/MyBookings.aspx?tab=all", false);
+                    Context.ApplicationInstance.CompleteRequest();
+                    return;
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Trace.TraceError("Pending booking resume failed: " + ex);
+                    Session["MyBookings.Notice"] = "We could not continue this payment. Refresh My Bookings and try again.";
+                    Response.Redirect("~/Bookings/MyBookings.aspx?tab=all", false);
+                    Context.ApplicationInstance.CompleteRequest();
+                    return;
+                }
             }
             var checkIn = Session["Booking.CheckIn"] as DateTime?;
             var checkOut = Session["Booking.CheckOut"] as DateTime?;
@@ -74,6 +101,64 @@ namespace CodeCrafters_Major_Project_Website
                 }
             }
             PaymentCsrfToken = Convert.ToBase64String(SHA256.Create().ComputeHash(Encoding.UTF8.GetBytes(Convert.ToString(Session["Payment.Csrf"]))));
+
+            int currentResumeBookingId;
+            if (Int32.TryParse(Convert.ToString(Session["Payment.ResumeBookingId"]), out currentResumeBookingId) && currentResumeBookingId > 0 && IsResumingBooking)
+            {
+                var payment = BookingSupportStore.ReadPayment(currentResumeBookingId);
+                if (payment != null && !String.IsNullOrWhiteSpace(payment.PayPalOrderId))
+                {
+                    Session["Payment.Order." + PaymentAttemptToken] = payment.PayPalOrderId;
+                    SetPayPalSession(payment, User.Identity.Name);
+                }
+            }
+        }
+
+        private void PreparePendingBookingResume(int bookingId)
+        {
+            var summary = new MyBookingsService().GetBookingsForUser(User.Identity.Name)
+                .FirstOrDefault(booking => booking.BookingId == bookingId && booking.Status == "Pending" && booking.CanContinuePayment);
+            if (summary == null) throw new InvalidOperationException("This pending booking is no longer available to continue. Check its status in My Bookings.");
+
+            var payment = BookingSupportStore.ReadPayment(bookingId);
+            if (payment == null || payment.Status != "PendingPayment" ||
+                !String.Equals(payment.OwnerEmail, User.Identity.Name, StringComparison.OrdinalIgnoreCase) ||
+                payment.Rooms == null || payment.Rooms.Count == 0)
+                throw new InvalidOperationException("The payment details for this pending booking could not be verified. Contact the hotel before starting another payment.");
+
+            var roomIds = payment.Rooms.Select(room => room.RoomId).ToList();
+            int guestCount = payment.GuestCount > 0 ? payment.GuestCount : summary.GuestCount;
+            new AvailabilityService().RenewPendingPaymentHold(User.Identity.Name, bookingId, roomIds,
+                payment.CheckIn, payment.CheckOut, guestCount);
+
+            Session["Booking.CheckIn"] = payment.CheckIn.Date;
+            Session["Booking.CheckOut"] = payment.CheckOut.Date;
+            Session["Booking.GuestCount"] = guestCount;
+            Session["Payment.ResumeBookingId"] = bookingId;
+            IsResumingBooking = true;
+            ResumeCartJson = JsonConvert.SerializeObject(payment.Rooms.Select(room => new
+            {
+                roomId = room.RoomId.ToString(CultureInfo.InvariantCulture),
+                roomName = room.RoomType,
+                branchName = payment.BranchName,
+                pricePerNight = room.RatePerNight
+            }));
+        }
+
+        private void SetPayPalSession(BookingSupportStore.PaymentRecord payment, string email)
+        {
+            var roomIds = payment.Rooms.Select(room => room.RoomId).ToList();
+            var paypalContext = new JObject
+            {
+                ["roomIds"] = new JArray(roomIds),
+                ["checkIn"] = payment.CheckIn.Date,
+                ["checkOut"] = payment.CheckOut.Date,
+                ["user"] = email,
+                ["zarTotal"] = payment.ZarAmount,
+                ["usd"] = payment.UsdAmount
+            };
+            Session["pp_" + payment.PayPalOrderId] = paypalContext.ToString(Formatting.None);
+            Session["pp_bookingIds_" + payment.PayPalOrderId] = new List<int> { payment.BookingId };
         }
     }
 }

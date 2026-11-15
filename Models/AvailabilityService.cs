@@ -208,6 +208,95 @@ VALUES (@ClientId,@BranchId,CAST(GETDATE() AS date),@CheckIn,@CheckOut,@Total,@S
             if (unavailable.Count > 0) throw new InvalidOperationException("One or more rooms in your cart are no longer available for these dates or guest count. Return to Rooms and select available rooms.");
         }
 
+        public void RenewPendingPaymentHold(string email, int bookingId, IList<int> expectedRoomIds, DateTime checkIn, DateTime checkOut, int guestCount)
+        {
+            ValidateDates(checkIn, checkOut);
+            if (String.IsNullOrWhiteSpace(email) || bookingId < 1) throw new InvalidOperationException("Sign in and choose a valid pending booking.");
+            if (expectedRoomIds == null || expectedRoomIds.Count == 0 || expectedRoomIds.Distinct().Count() != expectedRoomIds.Count)
+                throw new InvalidOperationException("The rooms on this pending booking could not be verified.");
+
+            using (var connection = new SqlConnection(connectionString))
+            {
+                connection.Open();
+                using (var transaction = connection.BeginTransaction(IsolationLevel.Serializable))
+                {
+                    try
+                    {
+                        int clientId = GetClientId(connection, transaction, email);
+                        using (var booking = new SqlCommand(@"SELECT Booking_Status,Checkin_Date,Checkout_Date,Number_Adults,Number_Children
+FROM Booking WITH (UPDLOCK,HOLDLOCK) WHERE Booking_ID=@BookingId AND Client_ID=@ClientId", connection, transaction))
+                        {
+                            booking.Parameters.Add("@BookingId", SqlDbType.Int).Value = bookingId;
+                            booking.Parameters.Add("@ClientId", SqlDbType.Int).Value = clientId;
+                            using (var reader = booking.ExecuteReader())
+                            {
+                                if (!reader.Read()) throw new InvalidOperationException("That pending booking was not found on your account.");
+                                if (!String.Equals(Convert.ToString(reader["Booking_Status"]), "Pending", StringComparison.OrdinalIgnoreCase))
+                                    throw new InvalidOperationException("This booking is no longer awaiting payment.");
+                                if (Convert.ToDateTime(reader["Checkin_Date"]).Date != checkIn.Date || Convert.ToDateTime(reader["Checkout_Date"]).Date != checkOut.Date)
+                                    throw new InvalidOperationException("The booking dates changed. Return to My Bookings and try again.");
+                                int bookedGuests = Convert.ToInt32(reader["Number_Adults"]) + (reader["Number_Children"] == DBNull.Value ? 0 : Convert.ToInt32(reader["Number_Children"]));
+                                if (bookedGuests != guestCount) throw new InvalidOperationException("The guest count for this booking could not be verified.");
+                            }
+                        }
+
+                        var roomIds = new List<int>();
+                        using (var assignments = new SqlCommand(@"SELECT Hotel_Room_ID FROM Room_Assignment WITH (UPDLOCK,HOLDLOCK)
+WHERE Booking_ID=@BookingId AND Assignment_Status<>'Cancelled' ORDER BY Hotel_Room_ID", connection, transaction))
+                        {
+                            assignments.Parameters.Add("@BookingId", SqlDbType.Int).Value = bookingId;
+                            using (var reader = assignments.ExecuteReader()) while (reader.Read()) roomIds.Add(Convert.ToInt32(reader[0]));
+                        }
+                        if (!roomIds.OrderBy(id => id).SequenceEqual(expectedRoomIds.OrderBy(id => id)))
+                            throw new InvalidOperationException("The rooms on this pending booking changed. Return to My Bookings and refresh.");
+
+                        foreach (int roomId in roomIds)
+                        {
+                            using (var room = new SqlCommand(@"SELECT hotel_room_status,ISNULL(Max_Adults,0)+ISNULL(Max_Children,0)
+FROM Hotel_Room WITH (UPDLOCK,HOLDLOCK) WHERE Hotel_Room_ID=@RoomId", connection, transaction))
+                            {
+                                room.Parameters.Add("@RoomId", SqlDbType.Int).Value = roomId;
+                                using (var reader = room.ExecuteReader())
+                                {
+                                    if (!reader.Read()) throw new InvalidOperationException("A room on this booking no longer exists.");
+                                    string status = Convert.ToString(reader[0]);
+                                    int capacity = reader[1] == DBNull.Value ? 0 : Convert.ToInt32(reader[1]);
+                                    if (!String.Equals(status, "Available", StringComparison.OrdinalIgnoreCase) && !String.Equals(status, "Booked", StringComparison.OrdinalIgnoreCase))
+                                        throw new InvalidOperationException("A room on this booking is now out of service. Contact the hotel before paying.");
+                                    if (capacity > 0 && capacity < guestCount) throw new InvalidOperationException("A room on this booking no longer has capacity for your guest count.");
+                                }
+                            }
+
+                            using (var overlap = new SqlCommand(@"SELECT COUNT(*) FROM Room_Assignment ra WITH (UPDLOCK,HOLDLOCK)
+INNER JOIN Booking other WITH (UPDLOCK,HOLDLOCK) ON other.Booking_ID=ra.Booking_ID
+WHERE ra.Hotel_Room_ID=@RoomId AND ra.Assignment_Status<>'Cancelled' AND other.Booking_ID<>@BookingId
+ AND other.Booking_Status IN ('Pending','Booked','Confirmed','CheckedIn')
+ AND (other.Booking_Status<>'Pending' OR ra.Assigned_Date>DATEADD(MINUTE,-@HoldMinutes,GETDATE()))
+ AND other.Checkin_Date<@CheckOut AND other.Checkout_Date>@CheckIn", connection, transaction))
+                            {
+                                overlap.Parameters.Add("@RoomId", SqlDbType.Int).Value = roomId;
+                                overlap.Parameters.Add("@BookingId", SqlDbType.Int).Value = bookingId;
+                                overlap.Parameters.Add("@CheckIn", SqlDbType.Date).Value = checkIn.Date;
+                                overlap.Parameters.Add("@CheckOut", SqlDbType.Date).Value = checkOut.Date;
+                                overlap.Parameters.Add("@HoldMinutes", SqlDbType.Int).Value = ReadHoldMinutes();
+                                if (Convert.ToInt32(overlap.ExecuteScalar()) > 0)
+                                    throw new InvalidOperationException("A room on this booking is no longer available for those dates. Return to Rooms and choose another room.");
+                            }
+                        }
+
+                        using (var renew = new SqlCommand(@"UPDATE Room_Assignment SET Assigned_Date=GETDATE()
+WHERE Booking_ID=@BookingId AND Assignment_Status<>'Cancelled'", connection, transaction))
+                        {
+                            renew.Parameters.Add("@BookingId", SqlDbType.Int).Value = bookingId;
+                            if (renew.ExecuteNonQuery() != roomIds.Count) throw new InvalidOperationException("The payment hold could not be renewed. Refresh and try again.");
+                        }
+                        transaction.Commit();
+                    }
+                    catch { transaction.Rollback(); throw; }
+                }
+            }
+        }
+
         public decimal ModifyBookingDates(string email, int bookingId, DateTime checkIn, DateTime checkOut)
         {
             ValidateDates(checkIn, checkOut);

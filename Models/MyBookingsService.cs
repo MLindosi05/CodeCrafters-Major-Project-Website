@@ -25,6 +25,7 @@ namespace CodeCrafters_Major_Project_Website.Models
         public decimal RefundAmount { get; set; }
         public int RefundPercentage { get; set; }
         public bool CanCancel { get; set; }
+        public bool CanContinuePayment { get; set; }
         public bool CanModifyDates { get; set; }
         public bool CanMobileCheckIn { get; set; }
         public bool CanMobileCheckOut { get; set; }
@@ -103,6 +104,8 @@ ORDER BY b.Booking_Date DESC,b.Booking_ID DESC,hr.hotel_room_number";
                                 RefundStatus = payment == null ? (status == "Cancelled" ? "Manual review" : "—") : payment.RefundStatus,
                                 HasRefund = status == "Cancelled" && reader["Credit_Amount"] != DBNull.Value && Convert.ToDecimal(reader["Credit_Amount"]) > 0,
                                 CanCancel = cancellable,
+                                CanContinuePayment = status == "Pending" && payment != null && payment.Status == "PendingPayment" &&
+                                    String.Equals(payment.OwnerEmail, email, StringComparison.OrdinalIgnoreCase),
                                 CanModifyDates = status == "Confirmed" || status == "Booked",
                                 CanMobileCheckIn = IsWithinMobileCheckInWindow(status, checkIn, checkOut),
                                 CanMobileCheckOut = status == "CheckedIn",

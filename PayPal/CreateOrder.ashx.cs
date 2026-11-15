@@ -53,6 +53,12 @@ namespace CodeCrafters_Major_Project_Website.PayPal
             string attemptToken = (string)req["attemptToken"];
             if (String.IsNullOrEmpty(attemptToken) || !String.Equals(attemptToken, Convert.ToString(ctx.Session["Payment.Attempt"]), StringComparison.Ordinal))
                 throw new InvalidOperationException("This payment attempt is invalid. Reload the payment page and try again.");
+            int resumeBookingId;
+            if (Int32.TryParse(Convert.ToString(ctx.Session["Payment.ResumeBookingId"]), out resumeBookingId) && resumeBookingId > 0)
+            {
+                await CreatePayPalOrderForPendingBooking(ctx, req, attemptToken, resumeBookingId);
+                return;
+            }
             var previous = ctx.Session["Payment.Order." + attemptToken] as string;
             if (!String.IsNullOrEmpty(previous))
             {
@@ -124,9 +130,84 @@ namespace CodeCrafters_Major_Project_Website.PayPal
             if (!(ctx.Session["Booking.CheckIn"] is DateTime) || !(ctx.Session["Booking.CheckOut"] is DateTime))
                 throw new InvalidOperationException("Choose stay dates in Rooms before payment.");
             int guests = Convert.ToInt32(ctx.Session["Booking.GuestCount"] ?? 1);
+            int resumeBookingId;
+            if (Int32.TryParse(Convert.ToString(ctx.Session["Payment.ResumeBookingId"]), out resumeBookingId) && resumeBookingId > 0)
+            {
+                var payment = GetResumablePayment(ctx, resumeBookingId);
+                DateTime postedIn, postedOut;
+                if (!DateTime.TryParse((string)req["checkIn"], CultureInfo.InvariantCulture, DateTimeStyles.None, out postedIn) ||
+                    !DateTime.TryParse((string)req["checkOut"], CultureInfo.InvariantCulture, DateTimeStyles.None, out postedOut) ||
+                    postedIn.Date != payment.CheckIn.Date || postedOut.Date != payment.CheckOut.Date)
+                    throw new InvalidOperationException("The dates on this pending booking changed. Return to My Bookings and refresh.");
+                EnsureResumeRoomIds(ids, payment);
+                new AvailabilityService().RenewPendingPaymentHold(ctx.User.Identity.Name, resumeBookingId, ids, payment.CheckIn, payment.CheckOut, guests);
+                ctx.Response.Write(new JObject { ["valid"] = true }.ToString());
+                return;
+            }
             new AvailabilityService().ValidateRoomAvailability(ids, (DateTime)ctx.Session["Booking.CheckIn"],
                 (DateTime)ctx.Session["Booking.CheckOut"], guests);
             ctx.Response.Write(new JObject { ["valid"] = true }.ToString());
+        }
+
+        private static async Task CreatePayPalOrderForPendingBooking(HttpContext ctx, JObject req, string attemptToken, int bookingId)
+        {
+            var payment = GetResumablePayment(ctx, bookingId);
+            var roomIds = ReadRoomIds(req["roomIds"] as JArray);
+            EnsureResumeRoomIds(roomIds, payment);
+            DateTime postedIn, postedOut;
+            if (!DateTime.TryParse((string)req["checkIn"], CultureInfo.InvariantCulture, DateTimeStyles.None, out postedIn) ||
+                !DateTime.TryParse((string)req["checkOut"], CultureInfo.InvariantCulture, DateTimeStyles.None, out postedOut) ||
+                postedIn.Date != payment.CheckIn.Date || postedOut.Date != payment.CheckOut.Date)
+                throw new InvalidOperationException("The dates on this pending booking changed. Return to My Bookings and refresh.");
+
+            int guests = Convert.ToInt32(ctx.Session["Booking.GuestCount"] ?? 1);
+            new AvailabilityService().RenewPendingPaymentHold(ctx.User.Identity.Name, bookingId, roomIds, payment.CheckIn, payment.CheckOut, guests);
+
+            string orderId = null;
+            if (!String.IsNullOrWhiteSpace(payment.PayPalOrderId))
+            {
+                JObject existingOrder = await PayPalClient.GetOrderAsync(payment.PayPalOrderId);
+                string status = (string)existingOrder["status"];
+                if (String.Equals(status, "CREATED", StringComparison.OrdinalIgnoreCase) ||
+                    String.Equals(status, "APPROVED", StringComparison.OrdinalIgnoreCase) ||
+                    String.Equals(status, "COMPLETED", StringComparison.OrdinalIgnoreCase))
+                    orderId = payment.PayPalOrderId;
+            }
+
+            if (String.IsNullOrWhiteSpace(orderId))
+            {
+                var order = await PayPalClient.CreateOrderAsync(payment.UsdAmount,
+                    "The Regal Inn booking #" + bookingId + " (" + (payment.CheckOut.Date - payment.CheckIn.Date).Days + " night(s))");
+                orderId = (string)order["id"];
+                payment.PayPalOrderId = orderId;
+                BookingSupportStore.SavePayment(payment);
+            }
+
+            ctx.Session["Payment.Order." + attemptToken] = orderId;
+            ctx.Session["pp_" + orderId] = new JObject
+            {
+                ["roomIds"] = new JArray(roomIds), ["checkIn"] = payment.CheckIn.Date, ["checkOut"] = payment.CheckOut.Date,
+                ["user"] = ctx.User.Identity.Name, ["zarTotal"] = payment.ZarAmount, ["usd"] = payment.UsdAmount
+            }.ToString(Formatting.None);
+            ctx.Session["pp_bookingIds_" + orderId] = new List<int> { bookingId };
+            ctx.Response.Write(new JObject { ["id"] = orderId }.ToString());
+        }
+
+        private static BookingSupportStore.PaymentRecord GetResumablePayment(HttpContext ctx, int bookingId)
+        {
+            var payment = BookingSupportStore.ReadPayment(bookingId);
+            if (payment == null || payment.Status != "PendingPayment" || String.IsNullOrWhiteSpace(payment.OwnerEmail) ||
+                !String.Equals(payment.OwnerEmail, ctx.User.Identity.Name, StringComparison.OrdinalIgnoreCase) ||
+                payment.Rooms == null || payment.Rooms.Count == 0 || payment.ZarAmount <= 0 || payment.UsdAmount <= 0)
+                throw new InvalidOperationException("The pending payment could not be verified for your account.");
+            return payment;
+        }
+
+        private static void EnsureResumeRoomIds(IList<int> requestedIds, BookingSupportStore.PaymentRecord payment)
+        {
+            var savedIds = payment.Rooms.Select(room => room.RoomId).OrderBy(id => id).ToList();
+            if (!requestedIds.OrderBy(id => id).SequenceEqual(savedIds))
+                throw new InvalidOperationException("The rooms on this pending booking changed. Return to My Bookings and refresh.");
         }
 
         private static List<int> ReadRoomIds(JArray rawIds)

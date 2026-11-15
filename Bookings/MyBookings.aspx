@@ -45,6 +45,7 @@
                         <small>Demo credit is recorded on the booking; no PayPal refund is sent.</small>
                     </asp:Panel>
                     <div class="booking-actions">
+                        <a class="btn-regal" href='<%# "../Payments.aspx?resumeBookingId=" + Eval("BookingId") %>' runat="server" visible='<%# Eval("CanContinuePayment") %>'>Continue to payment</a>
                         <a class="btn-outline" href='<%# "Invoice.ashx?bookingId=" + Eval("BookingId") %>' visible='<%# Eval("CanDownloadInvoice") %>' runat="server">Download invoice</a>
                         <a class="btn-outline" href='<%# "Invoice.ashx?bookingId=" + Eval("BookingId") + "&amp;type=amended" %>' visible='<%# Eval("CanDownloadAmendedInvoice") %>' runat="server">Download amended invoice</a>
                         <a class="btn-outline" href='<%# "Invoice.ashx?bookingId=" + Eval("BookingId") + "&amp;type=credit" %>' visible='<%# Eval("CanDownloadCreditNote") %>' runat="server">Download credit note</a>
