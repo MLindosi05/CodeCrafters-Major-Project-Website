@@ -28,6 +28,23 @@ namespace CodeCrafters_Major_Project_Website.PayPal
             var res = await Http.SendAsync(req);
             string body = await res.Content.ReadAsStringAsync();
             if (!res.IsSuccessStatusCode) throw new InvalidOperationException("PayPal authentication failed.");
+            if (!res.IsSuccessStatusCode)
+            {
+                string errorCode = "unknown";
+                string Description = "No Error details returned";
+                try
+                {
+                    var error = JObject.Parse(body);
+                    errorCode = (string)error["error"] ?? errorCode;
+                    Description = (string)error["error_description"] ?? Description;
+
+                }
+                catch
+                { 
+
+                }
+                throw new InvalidOperationException("PayPal OAuth failed with HTTP" + (int)res.StatusCode + "[ + errorCode +]: " + Description);
+            }
             return (string)JObject.Parse(body)["access_token"];
         }
         public static async Task<JObject> CreateOrderAsync(decimal usdTotal, string description)
