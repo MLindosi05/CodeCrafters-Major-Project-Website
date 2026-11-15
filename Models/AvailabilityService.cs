@@ -62,6 +62,7 @@ FROM Hotel_Room hr INNER JOIN Branch b ON b.Branch_ID=hr.Branch_ID
 WHERE (@BranchId='' OR hr.Branch_ID=@BranchId)
   AND (@RoomType='' OR hr.hotel_room_type LIKE '%' + @RoomType + '%')
   AND (@MaxPrice=0 OR hr.Hotel_Room_Price<=@MaxPrice)
+  AND hr.hotel_room_status IN ('Available','Booked')
   AND ((ISNULL(hr.Max_Adults,0)+ISNULL(hr.Max_Children,0)>=@GuestCount) OR (ISNULL(hr.Max_Adults,0)+ISNULL(hr.Max_Children,0)=0) OR @GuestCount<=0)
   AND ((@CheckIn IS NULL AND hr.hotel_room_status='Available') OR
        (@CheckIn IS NOT NULL AND NOT EXISTS (
@@ -126,13 +127,17 @@ ORDER BY hr.Hotel_Room_Price ASC";
                         var roomDetails = new List<BookingRoomRate>();
                         foreach (int roomId in uniqueRoomIds)
                         {
-                            using (var room = new SqlCommand(@"SELECT hr.Hotel_Room_Price,hr.Branch_ID,hr.hotel_room_number,hr.hotel_room_type,br.Branch_Name
+                            using (var room = new SqlCommand(@"SELECT hr.Hotel_Room_Price,hr.Branch_ID,hr.hotel_room_number,hr.hotel_room_type,hr.hotel_room_status,br.Branch_Name
 FROM Hotel_Room hr WITH (UPDLOCK,HOLDLOCK) INNER JOIN Branch br ON br.Branch_ID=hr.Branch_ID WHERE hr.Hotel_Room_ID=@RoomId", connection, transaction))
                             {
                                 room.Parameters.AddWithValue("@RoomId", roomId);
                                 using (var reader = room.ExecuteReader())
                                 {
                                     if (!reader.Read()) throw new InvalidOperationException("A selected room no longer exists.");
+                                    string roomStatus = Convert.ToString(reader["hotel_room_status"]);
+                                    if (!String.Equals(roomStatus, "Available", StringComparison.OrdinalIgnoreCase) &&
+                                        !String.Equals(roomStatus, "Booked", StringComparison.OrdinalIgnoreCase))
+                                        throw new InvalidOperationException("This room is currently out of service and cannot be booked.");
                                     decimal rate = Convert.ToDecimal(reader["Hotel_Room_Price"]);
                                     string branch = Convert.ToString(reader["Branch_ID"]);
                                     string branchName = Convert.ToString(reader["Branch_Name"]);

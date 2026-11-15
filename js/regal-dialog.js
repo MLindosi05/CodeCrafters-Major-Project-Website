@@ -29,7 +29,19 @@
             openDialog(text, { title: "Please confirm" }).then(function (yes) {
                 if (!yes) return;
                 button.disabled = true;
-                if (window.__doPostBack) window.__doPostBack(button.name, "");
+                if (!window.__doPostBack) {
+                    button.disabled = false;
+                    return;
+                }
+
+                // ASP.NET LinkButtons render as anchors and have no `name`.
+                // Their event target is embedded in the javascript href.
+                var href = button.getAttribute("href") || "";
+                var match = href.match(/__doPostBack\(\s*(['"])(.*?)\1\s*,\s*(['"])(.*?)\3\s*\)/i);
+                var target = match ? match[2] : button.name;
+                var argument = match ? match[4] : "";
+                if (target) window.__doPostBack(target, argument);
+                else button.disabled = false;
             });
             return false;
         }

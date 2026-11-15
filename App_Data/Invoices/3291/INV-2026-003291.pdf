@@ -1,0 +1,77 @@
+%PDF-1.4
+% Regal Inn invoice
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [5 0 R] /Count 1 >>
+endobj
+3 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica /Encoding /WinAnsiEncoding >>
+endobj
+4 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold /Encoding /WinAnsiEncoding >>
+endobj
+5 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 3 0 R /F2 4 0 R >> >> /Contents 6 0 R >>
+endobj
+6 0 obj
+<< /Length 2457 >>
+stream
+BT /F2 20 Tf 48 790 Td (THE REGAL INN HOTEL) Tj ET
+BT /F2 14 Tf 48 764 Td (PAID INVOICE / RECEIPT) Tj ET
+BT /F1 10 Tf 48 744 Td (Invoice number: INV-2026-003291) Tj ET
+BT /F1 10 Tf 48 728 Td (Invoice date: 15 Nov 2026 UTC) Tj ET
+BT /F1 5 Tf 48 712 Td () Tj ET
+BT /F2 12 Tf 48 701 Td (GUEST DETAILS) Tj ET
+BT /F1 10 Tf 48 683 Td (Guest: Sinovuyo Ntola) Tj ET
+BT /F1 10 Tf 48 667 Td (Email: 223004582@stu.ukzn.ac.za) Tj ET
+BT /F1 10 Tf 48 651 Td (Phone: 0789222957) Tj ET
+BT /F1 5 Tf 48 635 Td () Tj ET
+BT /F2 12 Tf 48 624 Td (BOOKING DETAILS) Tj ET
+BT /F1 10 Tf 48 606 Td (Booking reference: #3291  |  Status: Confirmed) Tj ET
+BT /F1 10 Tf 48 590 Td (Booked: 15 Nov 2026) Tj ET
+BT /F1 10 Tf 48 574 Td (Branch: Durban Ballito) Tj ET
+BT /F1 10 Tf 48 558 Td (Branch address: 3 Stewart Drive, Ballito, 4420, KZN) Tj ET
+BT /F1 10 Tf 48 542 Td (Branch phone: 032-946-2000) Tj ET
+BT /F1 10 Tf 48 526 Td (Branch email: ballito@regalinn.co.za) Tj ET
+BT /F1 10 Tf 48 510 Td (Check-in: 18 Nov 2026  |  Check-out: 19 Nov 2026  |  Nights: 1  |  Guests: 2) Tj ET
+BT /F1 5 Tf 48 494 Td () Tj ET
+BT /F2 12 Tf 48 483 Td (BOOKED ROOMS) Tj ET
+BT /F1 10 Tf 48 465 Td (Standard Room 1 King Bed | Room 102  |  R1,600.00 per night  |  Room total: R1,600.00) Tj ET
+BT /F1 5 Tf 48 449 Td () Tj ET
+BT /F2 12 Tf 48 438 Td (PAYMENT SUMMARY) Tj ET
+BT /F1 10 Tf 48 420 Td (Room subtotal: R1,600.00) Tj ET
+BT /F1 10 Tf 48 404 Td (Taxes / fees: R0.00) Tj ET
+BT /F2 12 Tf 48 388 Td (Booking total: R1,600.00) Tj ET
+BT /F1 10 Tf 48 370 Td (Payment method: PayPal Checkout) Tj ET
+BT /F1 10 Tf 48 354 Td (Payment status: Paid) Tj ET
+BT /F1 10 Tf 48 338 Td (Paid on: 15 Nov 2026 13:32 UTC) Tj ET
+BT /F1 9 Tf 48 322 Td (PayPal order reference: 6JK900652Y1467256) Tj ET
+BT /F1 9 Tf 48 307 Td (Payment transaction reference: 4W819406HW147861A) Tj ET
+BT /F1 5 Tf 48 292 Td () Tj ET
+BT /F2 12 Tf 48 281 Td (CANCELLATION REFUND POLICY) Tj ET
+BT /F1 9 Tf 48 263 Td (7 or more days before check-in: 100% credit.) Tj ET
+BT /F1 9 Tf 48 248 Td (48 hours to less than 7 days before check-in: 50% credit.) Tj ET
+BT /F1 9 Tf 48 233 Td (Less than 48 hours before check-in or no-show: 0% credit.) Tj ET
+BT /F1 8 Tf 48 218 Td (Demo credits are recorded on the booking; no PayPal refund is sent.) Tj ET
+BT /F1 5 Tf 48 204 Td () Tj ET
+BT /F2 10 Tf 48 193 Td (Check-in reference: REGAL-3291  |  Please present this reference at reception.) Tj ET
+BT /F1 8 Tf 48 28 Td (Regal Inn | Booking #3291 | Page 1 of 1) Tj ET
+
+endstream
+endobj
+xref
+0 7
+0000000000 65535 f 
+0000000029 00000 n 
+0000000078 00000 n 
+0000000135 00000 n 
+0000000232 00000 n 
+0000000334 00000 n 
+0000000470 00000 n 
+trailer
+<< /Size 7 /Root 1 0 R >>
+startxref
+2979
+%%EOF

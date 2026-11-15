@@ -80,9 +80,19 @@ namespace CodeCrafters_Major_Project_Website.Models
                 string temporary = output + "." + Guid.NewGuid().ToString("N") + ".tmp";
                 try
                 {
-                    RenderPdf(data, number, type, temporary);
+                    try { RenderPdf(data, number, type, temporary); }
+                    catch (Exception renderError)
+                    {
+                        System.Diagnostics.Trace.TraceError("QuestPDF invoice rendering failed; using the built-in PDF fallback: " + renderError);
+                    }
+                    if (!IsValidPdf(temporary)) RenderFallbackPdf(data, number, type, temporary);
                     if (!IsValidPdf(temporary)) throw new InvalidDataException("The invoice renderer did not produce a valid PDF.");
                     File.Copy(temporary, output, true);
+                    if (!IsValidPdf(output))
+                    {
+                        if (File.Exists(output)) File.Delete(output);
+                        throw new InvalidDataException("The generated invoice could not be saved as a valid PDF.");
+                    }
                     File.WriteAllText(metadataPath, JsonConvert.SerializeObject(new InvoiceFileMetadata
                     { Version = 3, BookingId = bookingId, InvoiceNumber = number, Type = type, CreatedUtc = DateTime.UtcNow, FileName = fileName }));
                 }
@@ -275,6 +285,164 @@ WHERE b.Booking_ID=@Id AND c.Email_Address=@Email AND c.Client_Status='Active'";
                 page.Footer().AlignCenter().Text(text => { text.Span("Regal Inn · Booking #" + data.Id + " · Page "); text.CurrentPageNumber(); });
             })).GeneratePdf(path);
         }
+
+        private sealed class PdfTextLine
+        {
+            public string Text;
+            public int FontSize;
+            public bool Bold;
+        }
+
+        // Keep invoice downloads available if a native QuestPDF/font runtime fails under IIS Express.
+        // This fallback uses only .NET Framework APIs and writes a small, valid PDF directly.
+        private static void RenderFallbackPdf(InvoiceData data, string invoiceNumber, string type, string path)
+        {
+            bool creditNote = type == "CreditNote";
+            var lines = new List<PdfTextLine>();
+            Action<string, int, bool> add = (text, size, bold) => AddPdfLines(lines, text, size, bold);
+            var payment = BookingSupportStore.ReadPayment(data.Id);
+            int nights = Math.Max(0, (data.CheckOut.Date - data.CheckIn.Date).Days);
+
+            add("THE REGAL INN HOTEL", 20, true);
+            add(creditNote ? "CREDIT NOTE" : type == "Amended" ? "AMENDED INVOICE" : "PAID INVOICE / RECEIPT", 14, true);
+            add("Invoice number: " + invoiceNumber, 10, false);
+            add("Invoice date: " + DateTime.UtcNow.ToString("dd MMM yyyy", CultureInfo.InvariantCulture) + " UTC", 10, false);
+            add("", 10, false);
+            add("GUEST DETAILS", 12, true);
+            add("Guest: " + (String.IsNullOrWhiteSpace(data.GuestName) ? data.Email : data.GuestName), 10, false);
+            add("Email: " + data.Email, 10, false);
+            if (!String.IsNullOrWhiteSpace(data.GuestPhone)) add("Phone: " + data.GuestPhone, 10, false);
+            if (!String.IsNullOrWhiteSpace(data.GuestAddress)) add("Address: " + data.GuestAddress, 10, false);
+            add("", 10, false);
+            add("BOOKING DETAILS", 12, true);
+            add("Booking reference: #" + data.Id + "  |  Status: " + data.Status, 10, false);
+            add("Booked: " + data.Booked.ToString("dd MMM yyyy", CultureInfo.InvariantCulture), 10, false);
+            add("Branch: " + data.Branch, 10, false);
+            if (!String.IsNullOrWhiteSpace(data.BranchAddress)) add("Branch address: " + data.BranchAddress, 10, false);
+            if (!String.IsNullOrWhiteSpace(data.BranchPhone)) add("Branch phone: " + data.BranchPhone, 10, false);
+            if (!String.IsNullOrWhiteSpace(data.BranchEmail)) add("Branch email: " + data.BranchEmail, 10, false);
+            add("Check-in: " + data.CheckIn.ToString("dd MMM yyyy", CultureInfo.InvariantCulture) +
+                "  |  Check-out: " + data.CheckOut.ToString("dd MMM yyyy", CultureInfo.InvariantCulture) +
+                "  |  Nights: " + nights + "  |  Guests: " + data.GuestCount, 10, false);
+            add("", 10, false);
+            add("BOOKED ROOMS", 12, true);
+            if (data.Rooms.Count == 0) add("Room details are unavailable for this booking.", 10, false);
+            foreach (var room in data.Rooms)
+            {
+                string amount = room.Subtotal.HasValue ? "R" + room.Subtotal.Value.ToString("N2", CultureInfo.InvariantCulture) : "Rate not retained";
+                string rate = room.Rate.HasValue ? "R" + room.Rate.Value.ToString("N2", CultureInfo.InvariantCulture) + " per night" : "nightly rate not retained";
+                add(room.Label + "  |  " + rate + "  |  Room total: " + amount, 10, false);
+            }
+            add("", 10, false);
+            add("PAYMENT SUMMARY", 12, true);
+            if (data.Subtotal.HasValue) add("Room subtotal: R" + data.Subtotal.Value.ToString("N2", CultureInfo.InvariantCulture), 10, false);
+            if (data.TaxAmount.HasValue) add("Taxes / fees: R" + data.TaxAmount.Value.ToString("N2", CultureInfo.InvariantCulture), 10, false);
+            if (!data.Subtotal.HasValue && !data.TaxAmount.HasValue) add("Tax and room-rate breakdown was not retained in the booking record.", 9, false);
+            add("Booking total: R" + data.Total.ToString("N2", CultureInfo.InvariantCulture), 12, true);
+            add("Payment method: " + (payment == null ? "PayPal Checkout" : "PayPal Checkout"), 10, false);
+            add("Payment status: " + (payment != null && payment.Status == "Paid" ? "Paid" : data.Status == "Cancelled" ? "Cancelled after payment" : "Confirmed"), 10, false);
+            if (data.PaidUtc.HasValue) add("Paid on: " + data.PaidUtc.Value.ToString("dd MMM yyyy HH:mm 'UTC'", CultureInfo.InvariantCulture), 10, false);
+            if (!String.IsNullOrWhiteSpace(data.PayPalOrderId)) add("PayPal order reference: " + data.PayPalOrderId, 9, false);
+            if (!String.IsNullOrWhiteSpace(data.CaptureId)) add("Payment transaction reference: " + data.CaptureId, 9, false);
+            if (creditNote)
+            {
+                add("Recorded refund credit: R" + data.Refund.ToString("N2", CultureInfo.InvariantCulture), 12, true);
+                add("Non-refundable amount: R" + data.Penalty.ToString("N2", CultureInfo.InvariantCulture), 10, false);
+                add("Refund processing: " + (payment == null ? "Manual review" : payment.RefundStatus), 10, false);
+            }
+            add("", 10, false);
+            add("CANCELLATION REFUND POLICY", 12, true);
+            add("7 or more days before check-in: 100% credit.", 9, false);
+            add("48 hours to less than 7 days before check-in: 50% credit.", 9, false);
+            add("Less than 48 hours before check-in or no-show: 0% credit.", 9, false);
+            add("Demo credits are recorded on the booking; no PayPal refund is sent.", 8, false);
+            add("", 10, false);
+            add("Check-in reference: REGAL-" + data.Id + "  |  Please present this reference at reception.", 10, true);
+
+            var pages = new List<List<PdfTextLine>>();
+            for (int i = 0; i < lines.Count; i += 48) pages.Add(lines.Skip(i).Take(48).ToList());
+            if (pages.Count == 0) pages.Add(new List<PdfTextLine>());
+
+            var objects = new List<byte[]>();
+            objects.Add(PdfAscii("<< /Type /Catalog /Pages 2 0 R >>"));
+            string kids = String.Join(" ", Enumerable.Range(0, pages.Count).Select(i => (5 + i * 2) + " 0 R"));
+            objects.Add(PdfAscii("<< /Type /Pages /Kids [" + kids + "] /Count " + pages.Count + " >>"));
+            objects.Add(PdfAscii("<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica /Encoding /WinAnsiEncoding >>"));
+            objects.Add(PdfAscii("<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold /Encoding /WinAnsiEncoding >>"));
+            for (int pageIndex = 0; pageIndex < pages.Count; pageIndex++)
+            {
+                var content = new System.Text.StringBuilder();
+                int y = 790;
+                foreach (var line in pages[pageIndex])
+                {
+                    content.Append("BT /").Append(line.Bold ? "F2" : "F1").Append(' ').Append(line.FontSize)
+                        .Append(" Tf 48 ").Append(y).Append(" Td (").Append(EscapePdfText(line.Text)).Append(") Tj ET\n");
+                    y -= line.FontSize + 6;
+                }
+                content.Append("BT /F1 8 Tf 48 28 Td (Regal Inn | Booking #").Append(data.Id)
+                    .Append(" | Page ").Append(pageIndex + 1).Append(" of ").Append(pages.Count).Append(") Tj ET\n");
+                byte[] stream = PdfAscii(content.ToString());
+                objects.Add(PdfAscii("<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 3 0 R /F2 4 0 R >> >> /Contents " + (6 + pageIndex * 2) + " 0 R >>"));
+                var streamObject = new byte[PdfAscii("<< /Length " + stream.Length + " >>\nstream\n").Length + stream.Length + PdfAscii("\nendstream").Length];
+                byte[] start = PdfAscii("<< /Length " + stream.Length + " >>\nstream\n"), end = PdfAscii("\nendstream");
+                Buffer.BlockCopy(start, 0, streamObject, 0, start.Length);
+                Buffer.BlockCopy(stream, 0, streamObject, start.Length, stream.Length);
+                Buffer.BlockCopy(end, 0, streamObject, start.Length + stream.Length, end.Length);
+                objects.Add(streamObject);
+            }
+
+            using (var output = new MemoryStream())
+            {
+                WritePdf(output, "%PDF-1.4\n% Regal Inn invoice\n");
+                var offsets = new List<long> { 0 };
+                for (int i = 0; i < objects.Count; i++)
+                {
+                    offsets.Add(output.Position);
+                    WritePdf(output, (i + 1) + " 0 obj\n");
+                    output.Write(objects[i], 0, objects[i].Length);
+                    WritePdf(output, "\nendobj\n");
+                }
+                long xref = output.Position;
+                WritePdf(output, "xref\n0 " + (objects.Count + 1) + "\n0000000000 65535 f \n");
+                foreach (long offset in offsets.Skip(1)) WritePdf(output, offset.ToString("D10", CultureInfo.InvariantCulture) + " 00000 n \n");
+                WritePdf(output, "trailer\n<< /Size " + (objects.Count + 1) + " /Root 1 0 R >>\nstartxref\n" + xref + "\n%%EOF");
+                File.WriteAllBytes(path, output.ToArray());
+            }
+        }
+
+        private static void AddPdfLines(List<PdfTextLine> lines, string text, int fontSize, bool bold)
+        {
+            string value = (text ?? String.Empty).Replace('\r', ' ').Replace('\n', ' ');
+            if (String.IsNullOrWhiteSpace(value)) { lines.Add(new PdfTextLine { Text = String.Empty, FontSize = 5, Bold = false }); return; }
+            const int maxChars = 92;
+            while (value.Length > maxChars)
+            {
+                int split = value.LastIndexOf(' ', maxChars);
+                if (split < 1) split = maxChars;
+                lines.Add(new PdfTextLine { Text = value.Substring(0, split), FontSize = fontSize, Bold = bold });
+                value = value.Substring(split).TrimStart();
+            }
+            lines.Add(new PdfTextLine { Text = value, FontSize = fontSize, Bold = bold });
+        }
+
+        private static string EscapePdfText(string value)
+        {
+            var plain = new System.Text.StringBuilder();
+            foreach (char ch in (value ?? String.Empty).Normalize(System.Text.NormalizationForm.FormD))
+            {
+                if (Char.GetUnicodeCategory(ch) == System.Globalization.UnicodeCategory.NonSpacingMark) continue;
+                if (ch == '\u2013' || ch == '\u2014') plain.Append('-');
+                else if (ch == '\u00b7') plain.Append('|');
+                else if (ch == '\u2019' || ch == '\u2018') plain.Append('\'');
+                else if (ch == '\u00a0') plain.Append(' ');
+                else if (ch >= 32 && ch <= 126) plain.Append(ch);
+                else plain.Append('?');
+            }
+            return plain.ToString().Replace("\\", "\\\\").Replace("(", "\\(").Replace(")", "\\)");
+        }
+
+        private static byte[] PdfAscii(string value) { return System.Text.Encoding.ASCII.GetBytes(value); }
+        private static void WritePdf(Stream stream, string value) { byte[] bytes = PdfAscii(value); stream.Write(bytes, 0, bytes.Length); }
 
         private static bool IsValidPdf(string path)
         {

@@ -28,6 +28,9 @@ namespace CodeCrafters_Major_Project_Website.Bookings
                     throw new System.IO.IOException("The invoice PDF could not be generated.");
                 context.Response.Clear();
                 context.Response.ContentType = "application/pdf";
+                context.Response.Cache.SetCacheability(HttpCacheability.NoCache);
+                context.Response.Cache.SetNoStore();
+                context.Response.Cache.SetRevalidation(HttpCacheRevalidation.AllCaches);
                 context.Response.AddHeader("Content-Length", file.Length.ToString(System.Globalization.CultureInfo.InvariantCulture));
                 context.Response.AddHeader("Content-Disposition", "attachment; filename=\"" + System.IO.Path.GetFileName(path) + "\"");
                 context.Response.TransmitFile(path);
