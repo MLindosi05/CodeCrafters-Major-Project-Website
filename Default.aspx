@@ -1,4 +1,4 @@
-﻿<%@ Page Title="Home Page" Language="C#" MasterPageFile="~/Site.Master" AutoEventWireup="true" CodeBehind="Home.aspx.cs" Inherits="CodeCrafters_Major_Project_Website.Default" %>
+﻿<%@ Page Title="Home Page" Language="C#" MasterPageFile="~/Site.Master" AutoEventWireup="true" CodeBehind="Default.aspx.cs" Inherits="CodeCrafters_Major_Project_Website.Default" %>
 
 <asp:Content ID="TitleC" ContentPlaceHolderID="TitleContent" runat="server">
     Home | The Regal Inn Hotel
