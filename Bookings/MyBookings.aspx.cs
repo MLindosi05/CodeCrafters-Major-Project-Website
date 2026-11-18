@@ -18,6 +18,15 @@ namespace CodeCrafters_Major_Project_Website.Bookings
                 Response.Redirect("~/Account/Login.aspx?ReturnUrl=" + Server.UrlEncode(Request.RawUrl));
                 return;
             }
+
+            // Prevent staff accounts with @regalinn.co.za emails from viewing customer bookings
+            if (User.Identity.Name.EndsWith("@regalinn.co.za", StringComparison.OrdinalIgnoreCase))
+            {
+                Response.Redirect("~/Default.aspx", false);
+                Context.ApplicationInstance.CompleteRequest();
+                return;
+            }
+
             if (!IsPostBack)
             {
                 string notice = Session["MyBookings.Notice"] as string;

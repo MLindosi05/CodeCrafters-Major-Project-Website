@@ -11,7 +11,6 @@ using Microsoft.Owin.Security;
 using Microsoft.AspNet.Identity.Owin;
 using CodeCrafters_Major_Project_Website.Models;
 
-
 namespace CodeCrafters_Major_Project_Website
 {
     public partial class SiteMaster : MasterPage
