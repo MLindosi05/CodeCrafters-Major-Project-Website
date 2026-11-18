@@ -2,3 +2,12 @@
 2026/11/15 12:36:23 | CreateClientProfile for 223004582@stu.ukzn.ac.za — rows affected: 1
 2026/11/15 15:26:40 | CreateClientProfile for 224037215@stu.ukzn.ac.za — rows affected: 1
 2026/11/15 17:32:30 | CreateClientProfile for mlambomlindosi05@gmail.com — rows affected: 1
+2026/11/18 03:54:25 | CreateClientProfile for mlambomlindosi02@gmail.com — rows affected: 1
+2026/11/18 03:56:20 | CreateClientProfile for jobekwanele@gmail.com — rows affected: 1
+2026/11/18 05:09:57 | CreateClientProfile for kwanelem@gmail.com — rows affected: 1
+2026/11/18 05:23:19 | CreateClientProfile for mlambomlindosi@icloud.com — rows affected: 1
+2026/11/18 05:27:34 | CreateClientProfile for 223030469@stu.ukzn.ac.za — rows affected: 1
+2026/11/18 05:44:30 | CreateClientProfile for dladlalungelo@gmail.com — rows affected: 1
+2026/11/18 05:44:30 | SMS OTP generated for 0749136572 — Code: 867679
+2026/11/18 05:59:19 | CreateClientProfile for mlambolwandile@gmail.com — rows affected: 1
+2026/11/18 05:59:19 | SMS OTP initiated for registration user: 45ffd9d7-1f78-4e65-bb0e-acfebc318708

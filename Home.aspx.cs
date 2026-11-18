@@ -18,10 +18,13 @@ namespace CodeCrafters_Major_Project_Website
             {
                 BindFeaturedRooms();
                 BindRoomTypeDropdown();
+
+                // Set minimum selectable date attribute on the textbox control server-side
+                txtCheckIn.Attributes["min"] = DateTime.Today.ToString("yyyy-MM-dd");
             }
         }
 
-        // Now pulls every available room instead of just the top 3.
+        // Pulls every available room representative for featured listings
         private void BindFeaturedRooms()
         {
             var rooms = new AvailabilityService().GetAvailableRooms(String.Empty, String.Empty, 0, null, null, 0)
@@ -30,15 +33,17 @@ namespace CodeCrafters_Major_Project_Website
                 .OrderByDescending(room => room.PricePerNight)
                 .Select(room => new FeaturedRoom
                 {
-                    RoomId = room.RoomId.ToString(), RoomName = room.RoomType,
-                    PricePerNight = room.PricePerNight, MaxGuests = room.MaxGuests,
+                    RoomId = room.RoomId.ToString(),
+                    RoomName = room.RoomType,
+                    PricePerNight = room.PricePerNight,
+                    MaxGuests = room.MaxGuests,
                     ImageUrl = ImageForRoomType(room.RoomType)
                 }).ToList();
             rptFeaturedRooms.DataSource = rooms;
             rptFeaturedRooms.DataBind();
         }
-        // Populates the search widget's Room Type dropdown from whatever
-        // distinct room types actually exist in the database right now.
+
+        // Populates the search widget's Room Type dropdown from distinct room types in the database
         private void BindRoomTypeDropdown()
         {
             string connStr = ConfigurationManager.ConnectionStrings["DefaultConnection"].ConnectionString;
@@ -67,9 +72,7 @@ namespace CodeCrafters_Major_Project_Website
             return dbValue == DBNull.Value ? 0 : Convert.ToInt32(dbValue);
         }
 
-        // Matches each room type to the actual filenames sitting in
-        // ~/Images/. Ordered from most-specific to least-specific so
-        // "standard...king" and "standard...double" don't collide.
+        // Matches each room type to the actual filenames sitting in ~/Images/
         public static string ImageForRoomType(string roomType)
         {
             string type = (roomType ?? string.Empty).ToLower();
@@ -90,7 +93,6 @@ namespace CodeCrafters_Major_Project_Website
             if (type.Contains("standard"))
                 return ResolveImage("~/Images/STANDARD ROOM 1 KING BED.png");
 
-            // Fallback for any type that doesn't match a known keyword
             return ResolveImage("~/Images/regall inn home page.jpg");
         }
 
@@ -98,6 +100,22 @@ namespace CodeCrafters_Major_Project_Website
 
         protected void btnSearch_Click(object sender, EventArgs e)
         {
+            DateTime checkInDate, checkOutDate;
+
+            // Business Validation 1: Check-in date cannot be in the past or invalid
+            if (!DateTime.TryParse(txtCheckIn.Text, out checkInDate) || checkInDate.Date < DateTime.Today)
+            {
+                ScriptManager.RegisterStartupScript(this, GetType(), "valError1", "alert('Error: Check-in date cannot be selected from the past.');", true);
+                return;
+            }
+
+            // Business Validation 2: Check-out date cannot be less than or equal to check-in date
+            if (!DateTime.TryParse(txtCheckOut.Text, out checkOutDate) || checkOutDate.Date <= checkInDate.Date)
+            {
+                ScriptManager.RegisterStartupScript(this, GetType(), "valError2", "alert('Error: Check-out date must be strictly after the check-in date.');", true);
+                return;
+            }
+
             string url = string.Format(
                 "~/Rooms.aspx?checkin={0}&checkout={1}&guests={2}&type={3}",
                 Server.UrlEncode(txtCheckIn.Text),
@@ -129,5 +147,4 @@ namespace CodeCrafters_Major_Project_Website
             public string ImageUrl { get; set; }
         }
     }
-
 }

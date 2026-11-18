@@ -16,6 +16,7 @@ namespace CodeCrafters_Major_Project_Website.Bookings
                 return;
             }
             BookingReference.Text = id.ToString();
+            lnkDownloadInvoice.NavigateUrl = "Invoice.ashx?bookingId=" + id;
         }
     }
 }

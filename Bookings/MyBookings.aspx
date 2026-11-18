@@ -14,7 +14,7 @@
 
         <asp:Panel ID="pnlNoBookings" runat="server" Visible="false" CssClass="form-regal">
             <p>No bookings in this section.</p>
-            <a href="../Rooms.aspx" class="btn-regal">Browse rooms</a>
+            <a runat="server" href="~/Rooms.aspx" class="btn-regal">Browse rooms</a>
         </asp:Panel>
 
         <asp:Repeater ID="rptBookings" runat="server" OnItemCommand="rptBookings_ItemCommand">
@@ -45,7 +45,7 @@
                         <small>Demo credit is recorded on the booking; no PayPal refund is sent.</small>
                     </asp:Panel>
                     <div class="booking-actions">
-                        <a class="btn-regal" href='<%# "../Payments.aspx?resumeBookingId=" + Eval("BookingId") %>' runat="server" visible='<%# Eval("CanContinuePayment") %>'>Continue to payment</a>
+                        <a class="btn-regal" href='<%# ResolveUrl("~/Payments.aspx?resumeBookingId=") + Eval("BookingId") %>' runat="server" visible='<%# Eval("CanContinuePayment") %>'>Continue to payment</a>
                         <a class="btn-outline" href='<%# "Invoice.ashx?bookingId=" + Eval("BookingId") %>' visible='<%# Eval("CanDownloadInvoice") %>' runat="server">Download invoice</a>
                         <a class="btn-outline" href='<%# "Invoice.ashx?bookingId=" + Eval("BookingId") + "&amp;type=amended" %>' visible='<%# Eval("CanDownloadAmendedInvoice") %>' runat="server">Download amended invoice</a>
                         <a class="btn-outline" href='<%# "Invoice.ashx?bookingId=" + Eval("BookingId") + "&amp;type=credit" %>' visible='<%# Eval("CanDownloadCreditNote") %>' runat="server">Download credit note</a>

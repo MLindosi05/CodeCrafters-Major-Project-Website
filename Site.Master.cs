@@ -66,7 +66,7 @@ namespace CodeCrafters_Major_Project_Website
                 if ((string)ViewState[AntiXsrfTokenKey] != _antiXsrfTokenValue
                     || (string)ViewState[AntiXsrfUserNameKey] != (Context.User.Identity.Name ?? String.Empty))
                 {
-                      throw new InvalidOperationException("Validation of Anti-XSRF token failed.");
+                    throw new InvalidOperationException("Validation of Anti-XSRF token failed.");
                 }
             }
         }
@@ -104,11 +104,19 @@ namespace CodeCrafters_Major_Project_Website
         {
             Context.GetOwinContext().Authentication.SignOut(DefaultAuthenticationTypes.ApplicationCookie);
         }
+
         protected void LoginStatus1_LoggingOut(object sender, System.Web.UI.WebControls.LoginCancelEventArgs e)
         {
             var authenticationManager = Context.GetOwinContext().Authentication;
             authenticationManager.SignOut(DefaultAuthenticationTypes.ApplicationCookie);
+
+            // Clear shopping cart and stay selections from client sessionStorage upon logout
+            Page.ClientScript.RegisterStartupScript(
+                this.GetType(),
+                "ClearCartOnLogout",
+                "try { sessionStorage.removeItem('regalCartItems'); sessionStorage.removeItem('regalStaySelection'); if(window.RegalCart && RegalCart.render) RegalCart.render(); } catch(e) {}",
+                true
+            );
         }
     }
-
 }

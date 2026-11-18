@@ -79,10 +79,20 @@ namespace CodeCrafters_Major_Project_Website.Bookings
                             "Booking #" + bookingId + " was cancelled. Demo refund credit recorded: R" + refund.ToString("N2") + ". This is recorded for demonstration and no PayPal refund was sent.", creditNote);
                     }
                     catch (Exception queueError) { System.Diagnostics.Trace.TraceError("Cancellation follow-up queue failed: " + queueError); }
+
                     lblBookingsMessage.Text = refund <= 0
                         ? "Booking #" + bookingId + " was cancelled. No demo credit is due under the cancellation policy."
                         : "Booking #" + bookingId + " was cancelled. Demo refund credit of R" + refund.ToString("N2") + " is recorded. No PayPal refund was sent.";
                     lblBookingsMessage.CssClass = "form-msg success";
+
+                    // Wipe browser shopping cart storage on successful cancellation
+                    ClientScript.RegisterStartupScript(
+                        GetType(),
+                        "ClearCartOnCancel",
+                        "try { sessionStorage.removeItem('regalCartItems'); sessionStorage.removeItem('regalStaySelection'); if(window.RegalCart && RegalCart.render) RegalCart.render(); } catch(e) {}",
+                        true
+                    );
+
                     redirectTab = "cancelled";
                 }
                 else if (e.CommandName == "ResendConfirmation")

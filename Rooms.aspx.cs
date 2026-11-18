@@ -17,12 +17,13 @@ namespace CodeCrafters_Major_Project_Website
         {
             if (!IsPostBack)
             {
+                BindBranches();
+                BindRoomTypes();
+
                 if (Request.QueryString["checkin"] != null) txtCheckIn.Text = Request.QueryString["checkin"];
                 if (Request.QueryString["checkout"] != null) txtCheckOut.Text = Request.QueryString["checkout"];
                 if (Request.QueryString["guests"] != null && ddlGuests.Items.FindByValue(Request.QueryString["guests"]) != null)
                     ddlGuests.SelectedValue = Request.QueryString["guests"];
-                BindBranches();
-                BindRoomTypes();
                 if (Request.QueryString["branch"] != null && ddlBranch.Items.FindByValue(Request.QueryString["branch"]) != null)
                     ddlBranch.SelectedValue = Request.QueryString["branch"];
                 if (Request.QueryString["type"] != null && ddlRoomType.Items.FindByValue(Request.QueryString["type"]) != null)
@@ -67,15 +68,21 @@ namespace CodeCrafters_Major_Project_Website
                 RoomTypePresentation presentation = RoomTypePresentation.For(room.RoomType, maxGuests.ToString());
                 rooms.Add(new RoomResult
                 {
-                    RoomId = room.RoomId.ToString(), RoomName = room.RoomType,
-                    RoomNumber = room.RoomNumber.ToString(), BranchId = room.BranchId, BranchName = room.BranchName,
-                    Blurb = presentation.Description, MaxGuests = maxGuests.ToString(),
-                    AdditionalAmenities = presentation.AdditionalAmenities, PricePerNight = room.PricePerNight,
+                    RoomId = room.RoomId.ToString(),
+                    RoomName = room.RoomType,
+                    RoomNumber = room.RoomNumber.ToString(),
+                    BranchId = room.BranchId,
+                    BranchName = room.BranchName,
+                    Blurb = presentation.Description,
+                    MaxGuests = maxGuests.ToString(),
+                    AdditionalAmenities = presentation.AdditionalAmenities,
+                    PricePerNight = room.PricePerNight,
                     ImageUrl = Default.ImageForRoomType(room.RoomType)
                 });
             }
             rptRooms.DataSource = rooms; rptRooms.DataBind(); pnlNoResults.Visible = rooms.Count == 0;
         }
+
         protected void btnFilter_Click(object sender, EventArgs e)
         {
             lblStayValidation.Visible = false;
@@ -231,10 +238,7 @@ namespace CodeCrafters_Major_Project_Website
             public string ImageUrl { get; set; }
         }
     }
-}
 
-namespace CodeCrafters_Major_Project_Website.Models
-{
     public sealed class RoomTypePresentation
     {
         private RoomTypePresentation(string description, string[] additionalAmenities)

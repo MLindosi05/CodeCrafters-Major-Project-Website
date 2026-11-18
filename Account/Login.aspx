@@ -31,7 +31,7 @@
             <div class="field">
                 <label for="Email">Email</label>
                 <div style="position:relative;">
-                    <asp:TextBox runat="server" ID="Email" CssClass="regal-input" placeholder="you@example.com" TabIndex="2" />
+                    <asp:TextBox runat="server" ID="Email" CssClass="regal-input" placeholder="you@example.com" TabIndex="2" TextMode="Email" autocomplete="email" />
                 </div>
                 <asp:RequiredFieldValidator runat="server" ControlToValidate="Email"
                     CssClass="field-error" ErrorMessage="Email is required." Display="Dynamic" />
@@ -40,7 +40,7 @@
             <div class="field">
                 <label for="Password">Password</label>
                 <div style="position:relative;">
-                    <asp:TextBox runat="server" ID="Password" TextMode="Password" CssClass="regal-input" placeholder="••••••••" TabIndex="3" />
+                    <asp:TextBox runat="server" ID="Password" TextMode="Password" CssClass="regal-input" placeholder="••••••••" TabIndex="3" autocomplete="current-password" />
                     <button type="button" class="pw-toggle" data-target="<%= Password.ClientID %>" aria-label="Show password">👁</button>
                 </div>
                 <asp:RequiredFieldValidator runat="server" ControlToValidate="Password"

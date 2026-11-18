@@ -26,7 +26,7 @@
     <div id="changePayPal" style="margin-top:1rem"></div>
     <button type="button" id="applyButton" class="btn-regal" style="display:none">Confirm change</button>
   </asp:Panel>
-  <a class="btn-outline" href="MyBookings.aspx">Back to My Bookings</a>
+  <a class="btn-outline" runat="server" href="~/Bookings/MyBookings.aspx">Back to My Bookings</a>
 </section>
 <script src="https://www.paypal.com/sdk/js?client-id=<%= PayPalClientId %>&currency=USD"></script>
 <script>
@@ -196,7 +196,7 @@
                         return RegalDialog.alert(result.message || 'Your booking was updated.', {
                             title: 'Booking updated'
                         }).then(function () {
-                            window.location.href = 'MyBookings.aspx';
+                            window.location.href = '<%= ResolveUrl("~/Bookings/MyBookings.aspx") %>';
                         });
                     }).catch(function (error) {
                         showMessage(error.message, true);
@@ -311,7 +311,7 @@
                 return RegalDialog.alert(result.message || 'Your booking was updated.', {
                     title: 'Booking updated'
                 }).then(function () {
-                    window.location.href = 'MyBookings.aspx';
+                    window.location.href = '<%= ResolveUrl("~/Bookings/MyBookings.aspx") %>';
                 });
             }).catch(function (error) {
                 showMessage(error.message, true);
@@ -321,7 +321,7 @@
         });
     });
 
-    loadOptions();
-}());
+        loadOptions();
+    }());
 </script>
 </asp:Content>

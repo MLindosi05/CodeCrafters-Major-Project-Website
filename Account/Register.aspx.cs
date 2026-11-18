@@ -38,7 +38,9 @@ namespace CodeCrafters_Major_Project_Website.Account
             if (!Page.IsValid) return;
 
             string email = Email.Text.Trim();
+            string phone = Phone.Text.Trim();
             bool creatingStaffAccount = String.Equals(AccountType.SelectedValue, "Staff", StringComparison.OrdinalIgnoreCase);
+
             if (!creatingStaffAccount && !String.Equals(AccountType.SelectedValue, "Guest", StringComparison.OrdinalIgnoreCase))
             {
                 ErrorMessage.Text = "<div class='form-msg error'>Choose a valid account type.</div>";
@@ -50,10 +52,8 @@ namespace CodeCrafters_Major_Project_Website.Account
             {
                 try
                 {
-                    // Staff accounts may only be created for an employee already present
-                    // and active in the existing Staff table. Never create a Client row here.
                     staffRole = new StaffAccountService().MatchActiveStaffForRegistration(
-                        email, FirstName.Text.Trim(), LastName.Text.Trim(), Phone.Text.Trim());
+                        email, FirstName.Text.Trim(), LastName.Text.Trim(), phone);
                 }
                 catch (Exception ex)
                 {
@@ -68,7 +68,7 @@ namespace CodeCrafters_Major_Project_Website.Account
                 }
             }
 
-            var user = new ApplicationUser { UserName = email, Email = email };
+            var user = new ApplicationUser { UserName = email, Email = email, PhoneNumber = phone, PhoneNumberConfirmed = true };
 
             IdentityResult result;
             try
@@ -94,7 +94,7 @@ namespace CodeCrafters_Major_Project_Website.Account
                     RoleBootstrapper.EnsureRole(UserManager, user.Id, StaffAccountService.ToIdentityRole(staffRole));
                 else
                 {
-                    CreateClientProfile(email);
+                    CreateClientProfile(email, phone);
                     RoleBootstrapper.EnsureGuestRole(UserManager, user.Id);
                 }
             }
@@ -106,9 +106,13 @@ namespace CodeCrafters_Major_Project_Website.Account
                 return;
             }
 
-            Response.Redirect("~/RegisterConfirmation.aspx?email=" + Server.UrlEncode(email));
+            // Automatically sign in the newly registered user and redirect directly
+            SignInManager.SignIn(user, isPersistent: false, rememberBrowser: false);
+            Response.Redirect("~/Bookings/MyBookings.aspx", false);
+            Context.ApplicationInstance.CompleteRequest();
         }
-        private void CreateClientProfile(string email)
+
+        private void CreateClientProfile(string email, string phone)
         {
             const string sql = @"IF NOT EXISTS (SELECT 1 FROM Client WHERE Email_Address = @Email)
              INSERT INTO Client (First_Name, Last_Name, Password, Email_Address, Phone_Number, Client_Status, Date_Registered)
@@ -120,23 +124,10 @@ namespace CodeCrafters_Major_Project_Website.Account
                 command.Parameters.AddWithValue("@FirstName", FirstName.Text.Trim());
                 command.Parameters.AddWithValue("@LastName", LastName.Text.Trim());
                 command.Parameters.AddWithValue("@Email", email);
-                command.Parameters.AddWithValue("@Phone", Phone.Text.Trim());
+                command.Parameters.AddWithValue("@Phone", phone);
                 connection.Open();
                 int rows = command.ExecuteNonQuery();
-                Log("CreateClientProfile for " + email + " — rows affected: " + rows);
             }
-        }
-        
-
-        private void Log(string message)
-        {
-            try
-            {
-                System.IO.File.AppendAllText(Server.MapPath("~/App_Data/register_debug.txt"),
-                    DateTime.Now + " | " + message + Environment.NewLine);
-            }
-            catch { /* never let logging break registration */ }
-
         }
     }
 }

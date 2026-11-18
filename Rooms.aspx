@@ -1,4 +1,4 @@
-﻿   <%@ Page Title="" Language="C#" MasterPageFile="~/Site.Master" AutoEventWireup="true" CodeBehind="Rooms.aspx.cs" Inherits="CodeCrafters_Major_Project_Website.Rooms" %>
+﻿<%@ Page Title="" Language="C#" MasterPageFile="~/Site.Master" AutoEventWireup="true" CodeBehind="Rooms.aspx.cs" Inherits="CodeCrafters_Major_Project_Website.Rooms" %>
 <asp:Content ID="TitleC" ContentPlaceHolderID="TitleContent" runat="server">
     Rooms &amp; Rates | The Regal Inn Hotel
 </asp:Content>
@@ -12,15 +12,15 @@
         <div class="search-widget" style="margin-top:0; margin-bottom:3rem;">
             <div class="field">
                 <label>Check-in</label>
-                <asp:TextBox ID="txtCheckIn" runat="server" TextMode="Date" />
+                <asp:TextBox ID="txtCheckIn" runat="server" TextMode="Date" ClientIDMode="Static" />
             </div>
             <div class="field">
                 <label>Check-out</label>
-                <asp:TextBox ID="txtCheckOut" runat="server" TextMode="Date" />
+                <asp:TextBox ID="txtCheckOut" runat="server" TextMode="Date" ClientIDMode="Static" />
             </div>
               <div class="field">
       <label for="ddlGuests">Guests</label>
-      <asp:DropDownList ID="ddlGuests" runat="server">
+      <asp:DropDownList ID="ddlGuests" runat="server" ClientIDMode="Static">
           <asp:ListItem Text="1 Guest" Value="1" />
           <asp:ListItem Text="2 Guests" Value="2" Selected="True" />
           <asp:ListItem Text="3 Guests" Value="3" />
@@ -29,15 +29,15 @@
   </div>
             <div class="field">
                 <label>Branch</label>
-                <asp:DropDownList ID="ddlBranch" runat="server" />
+                <asp:DropDownList ID="ddlBranch" runat="server" ClientIDMode="Static" />
             </div>
             <div class="field">
                 <label>Room Type</label>
-                <asp:DropDownList ID="ddlRoomType" runat="server" />
+                <asp:DropDownList ID="ddlRoomType" runat="server" ClientIDMode="Static" />
             </div>
             <div class="field">
                 <label>Max Price</label>
-                <asp:DropDownList ID="ddlMaxPrice" runat="server">
+                <asp:DropDownList ID="ddlMaxPrice" runat="server" ClientIDMode="Static">
                     <asp:ListItem Text="Any" Value="0" />
                     <asp:ListItem Text="Up to R1800" Value="1800" />
                     <asp:ListItem Text="Up to R2500" Value="2500" />
@@ -70,8 +70,6 @@
             </div>
             <div class="price">R<%# Eval("PricePerNight") %> / night</div>
             <div style="display:flex; gap:.6rem;">
-              <%--  <asp:Button runat="server" Text="Book Now" CssClass="btn-regal"
-                    CommandName="Book" CommandArgument='<%# Eval("RoomId") %>' />--%>
                 <button type="button" class="btn-outline room-add-to-cart"
                     data-room-id='<%# Eval("RoomId") %>' data-room-name='<%# System.Web.HttpUtility.HtmlAttributeEncode(Convert.ToString(Eval("RoomName"))) %>'
                     data-branch-name='<%# System.Web.HttpUtility.HtmlAttributeEncode(Convert.ToString(Eval("BranchName"))) %>' data-price='<%# Eval("PricePerNight") %>'>
@@ -89,7 +87,7 @@
         </asp:Panel>
     </section>
 
-    <!-- ================= BOOKING MODAL (guest-friendly, gates on confirm) ================= -->
+    <!-- ================= BOOKING MODAL ================= -->
     <asp:Panel ID="pnlBookingModal" runat="server" CssClass="form-regal" Style="display:none; position:fixed; top:8%; left:50%; transform:translateX(-50%); z-index:1500; max-height:84vh; overflow:auto;">
         <h3>Confirm Your Booking</h3>
         <asp:HiddenField ID="hdnSelectedRoomId" runat="server" />
@@ -106,7 +104,6 @@
             <asp:TextBox ID="txtModalCheckOut" runat="server" TextMode="Date" />
         </div>
 
-        <!-- If the user isn't authenticated, prompt inline instead of a hard redirect wall -->
         <asp:Panel ID="pnlLoginPrompt" runat="server" Visible="false" style="background:rgba(212,160,23,.1); padding:1rem; border-radius:8px; margin-bottom:1rem;">
             <a href="~/Account/Login.aspx" runat="server" class="btn-regal">Log In</a>
             <a href="~/Account/Register.aspx" runat="server" class="btn-outline">Create Account</a>
@@ -157,9 +154,16 @@
                 button.addEventListener('click', function () {
                     var error = stayValidationMessage();
                     if (error) { RegalDialog.alert(error, { title: "Choose stay dates" }); return; }
-                    RegalCart.add({ roomId: button.getAttribute('data-room-id'), roomName: button.getAttribute('data-room-name'),
-                        branchName: button.getAttribute('data-branch-name'), pricePerNight: button.getAttribute('data-price') },
-                        { checkIn: checkIn.value, checkOut: checkOut.value, guestCount: document.getElementById('<%= ddlGuests.ClientID %>').value });
+                    RegalCart.add({ 
+                        roomId: button.getAttribute('data-room-id'), 
+                        roomName: button.getAttribute('data-room-name'),
+                        branchName: button.getAttribute('data-branch-name'), 
+                        pricePerNight: button.getAttribute('data-price') 
+                    }, { 
+                        checkIn: checkIn.value, 
+                        checkOut: checkOut.value, 
+                        guestCount: document.getElementById('<%= ddlGuests.ClientID %>').value 
+                    });
                 });
             });
             checkIn.addEventListener('change', changeStay);
@@ -168,10 +172,8 @@
                 if (checkIn.value && checkOut.value) search.click();
             });
         })();
-
     </script>
     <script>
-        // Show the dimmed backdrop whenever the modal panel is server-rendered visible
         document.addEventListener("DOMContentLoaded", function () {
             var modal = document.getElementById("<%= pnlBookingModal.ClientID %>");
             var backdrop = document.getElementById("regalBookingModalWrap");

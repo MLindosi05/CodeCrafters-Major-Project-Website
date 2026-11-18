@@ -1,2 +1,11 @@
 <%@ Page Title="Booking confirmed" Language="C#" MasterPageFile="~/Site.Master" AutoEventWireup="true" CodeBehind="Confirmation.aspx.cs" Inherits="CodeCrafters_Major_Project_Website.Bookings.Confirmation" %>
-<asp:Content ID="Main" ContentPlaceHolderID="MainContent" runat="server"><section class="section" style="min-height:55vh;display:flex;align-items:center;justify-content:center"><div class="form-regal" style="text-align:center"><h1>Booking confirmed</h1><p style="color:var(--text-muted)">Your reservation reference is <strong>#<asp:Literal ID="BookingReference" runat="server" /></strong>.</p><a href="Invoice.ashx?bookingId=<%= BookingReference.Text %>" class="btn-outline">Download invoice PDF</a> <a href="~/Bookings/MyBookings.aspx" runat="server" class="btn-regal">View my bookings</a></div></section></asp:Content>
+<asp:Content ID="Main" ContentPlaceHolderID="MainContent" runat="server">
+    <section class="section" style="min-height:55vh;display:flex;align-items:center;justify-content:center">
+        <div class="form-regal" style="text-align:center">
+            <h1>Booking confirmed</h1>
+            <p style="color:var(--text-muted)">Your reservation reference is <strong>#<asp:Literal ID="BookingReference" runat="server" /></strong>.</p>
+            <asp:HyperLink ID="lnkDownloadInvoice" runat="server" CssClass="btn-outline">Download invoice PDF</asp:HyperLink> 
+            <a href="~/Bookings/MyBookings.aspx" runat="server" class="btn-regal">View my bookings</a>
+        </div>
+    </section>
+</asp:Content>

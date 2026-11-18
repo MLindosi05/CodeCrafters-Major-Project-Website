@@ -1,4 +1,4 @@
-﻿<%@ Page Title="Home Page" Language="C#" MasterPageFile="~/Site.Master" AutoEventWireup="true" CodeBehind="Default.aspx.cs" Inherits="CodeCrafters_Major_Project_Website.Default" %>
+﻿<%@ Page Title="Home Page" Language="C#" MasterPageFile="~/Site.Master" AutoEventWireup="true" CodeBehind="Home.aspx.cs" Inherits="CodeCrafters_Major_Project_Website.Default" %>
 
 <asp:Content ID="TitleC" ContentPlaceHolderID="TitleContent" runat="server">
     Home | The Regal Inn Hotel
@@ -22,11 +22,11 @@
     <div class="search-widget" id="search">
         <div class="field">
             <label for="txtCheckIn">Check-in</label>
-            <asp:TextBox ID="txtCheckIn" runat="server" TextMode="Date" CssClass="form-control" />
+            <asp:TextBox ID="txtCheckIn" runat="server" TextMode="Date" CssClass="form-control" ClientIDMode="Static" />
         </div>
         <div class="field">
             <label for="txtCheckOut">Check-out</label>
-            <asp:TextBox ID="txtCheckOut" runat="server" TextMode="Date" CssClass="form-control" />
+            <asp:TextBox ID="txtCheckOut" runat="server" TextMode="Date" CssClass="form-control" ClientIDMode="Static" />
         </div>
         <div class="field">
             <label for="ddlGuests">Guests</label>
@@ -41,11 +41,11 @@
             <label for="ddlBranch">Branch</label>
             <asp:DropDownList ID="ddlBranch" runat="server" AppendDataBoundItems="true" CssClass="form-control">
                 <asp:ListItem Text="-- Select Branch --" Value="" />
-                <asp:ListItem Text="Durban North Beach" value=""/>
-<asp:ListItem Text="Pietermaritzburg" value=""/>
-    <asp:ListItem Text="Durban UMhlanga" value=""/>
-        <asp:ListItem Text="Durban Ballito" value=""/>
-            <asp:ListItem Text="Johannesburg MidRand" value=""/>
+                <asp:ListItem Text="Durban North Beach" Value="Durban North Beach" />
+                <asp:ListItem Text="Pietermaritzburg" Value="Pietermaritzburg" />
+                <asp:ListItem Text="Durban UMhlanga" Value="Durban UMhlanga" />
+                <asp:ListItem Text="Durban Ballito" Value="Durban Ballito" />
+                <asp:ListItem Text="Johannesburg MidRand" Value="Johannesburg MidRand" />
             </asp:DropDownList>
         </div>
         <div class="field">
@@ -56,6 +56,8 @@
         </div>
         <asp:Button ID="btnSearch" runat="server" Text="Search" CssClass="btn-regal" OnClick="btnSearch_Click" />
     </div>
+
+    <asp:Label ID="lblSearchError" runat="server" CssClass="text-danger" style="display:block; text-align:center; margin-top:10px;" EnableViewState="false" />
 
     <!-- ================= WHY CHOOSE US ================= -->
     <section class="section reveal">
@@ -143,4 +145,25 @@
         <asp:Literal ID="litNewsletterMsg" runat="server" />
     </section>
 
+    <script type="text/javascript">
+        document.addEventListener("DOMContentLoaded", function () {
+            var checkIn = document.getElementById("txtCheckIn");
+            var checkOut = document.getElementById("txtCheckOut");
+
+            if (checkIn && checkOut) {
+                var today = new Date().toISOString().split('T')[0];
+                checkIn.setAttribute("min", today);
+
+                checkIn.addEventListener("change", function () {
+                    var selectedCheckIn = checkIn.value;
+                    checkOut.setAttribute("min", selectedCheckIn);
+                    if (checkOut.value && checkOut.value <= selectedCheckIn) {
+                        var nextDay = new Date(selectedCheckIn);
+                        nextDay.setDate(nextDay.getDate() + 1);
+                        checkOut.value = nextDay.toISOString().split('T')[0];
+                    }
+                });
+            }
+        });
+    </script>
 </asp:Content>
